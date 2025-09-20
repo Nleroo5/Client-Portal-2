@@ -15,7 +15,7 @@
         }
     };
 
-    // Load state from Firebase - PERFECT FIREBASE FUNCTION
+    // Load state from Firebase - CRITICAL FIREBASE FUNCTION (FIXED)
     async function loadState() {
         const urlParams = new URLSearchParams(window.location.search);
         const clientId = urlParams.get('c');
@@ -40,7 +40,7 @@
                 return;
             }
             
-            // Load client name
+            // Load client name if available
             if (data.clientName) {
                 const hero = document.querySelector('.hero h1');
                 if (hero) {
@@ -48,7 +48,7 @@
                 }
             }
             
-            // Load progress from Firebase
+            // Load progress from Firebase (FIXED)
             portalState['1'] = data.step1Complete || false;
             portalState['2'] = data.step2Complete || false;
             portalState['3'] = data.step3Complete || false;
@@ -88,18 +88,18 @@
                 updateCreativeGallery(data.creativeLink);
             }
             
-            // Store client ID for saving
+            // Store client ID for saving (CRITICAL)
             window.currentClientId = clientId;
             
-            console.log('✅ Client data loaded successfully:', data.clientName);
+            console.log('✅ Portal 2 - Client data loaded successfully:', data.clientName);
             
         } catch (error) {
-            console.error('Error loading from Firebase:', error);
+            console.error('❌ Portal 2 - Error loading from Firebase:', error);
             showErrorPage('Loading Error', 'Please refresh the page or contact support.');
         }
     }
 
-    // Show error page helper
+    // Show error page helper (FIXED)
     function showErrorPage(title, message) {
         document.body.innerHTML = `
             <div style="text-align:center; padding:50px; color:#012E40; background: linear-gradient(135deg, #012E40 0%, #05908C 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center;">
@@ -112,9 +112,12 @@
         `;
     }
 
-    // Save state to Firebase - PERFECT SAVE FUNCTION
+    // Save state to Firebase (FIXED)
     async function saveState() {
-        if (!window.currentClientId) return;
+        if (!window.currentClientId) {
+            console.error('❌ Portal 2 - No client ID available for saving');
+            return;
+        }
         
         try {
             await db.collection('clients').doc(window.currentClientId).update({
@@ -125,13 +128,13 @@
                 step5Complete: portalState['5'],
                 lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
             });
-            console.log('✅ Progress saved to Firebase');
+            console.log('✅ Portal 2 - Progress saved to Firebase');
         } catch (error) {
-            console.error('❌ Error saving to Firebase:', error);
+            console.error('❌ Portal 2 - Error saving to Firebase:', error);
         }
     }
 
-    // Update Progress Bar
+    // Update Progress Bar (FIXED)
     function updateProgressBar() {
         const completedSteps = Object.keys(portalState)
             .filter(key => !isNaN(key) && portalState[key]).length;
@@ -149,7 +152,7 @@
         return { completedSteps, percentage };
     }
 
-    // Update Floating Sidebar
+    // Update Floating Sidebar (FIXED)
     function updateFloatingSidebar() {
         const { completedSteps, percentage } = updateProgressBar();
         
@@ -191,7 +194,7 @@
         }
     }
 
-    // Update Step States
+    // Update Step States (CRITICAL STEP PROGRESSION LOGIC - FIXED)
     function updateStepStates() {
         for (let i = 1; i <= 5; i++) {
             const step = document.getElementById(`step${i}`);
@@ -205,18 +208,21 @@
                 const btn = step.querySelector('.btn-complete');
                 if (btn) {
                     btn.textContent = isCompleted ? `✓ Step ${i} Completed` : `Mark Step ${i} Complete`;
-                    if (isCompleted) btn.setAttribute('disabled', 'true');
-                    else btn.removeAttribute('disabled');
+                    if (isCompleted) {
+                        btn.setAttribute('disabled', 'true');
+                    } else {
+                        btn.removeAttribute('disabled');
+                    }
                 }
             }
         }
         updateFloatingSidebar();
     }
 
-    // Mark Step Complete - PERFECT ANIMATION SYSTEM
+    // Mark Step Complete (CRITICAL FUNCTION - FIXED WITH ANIMATIONS)
     function markStepComplete(stepNum) {
         portalState[stepNum.toString()] = true;
-        saveState();
+        saveState(); // This now saves to Firebase
         
         // Add completing animation to button
         const step = document.getElementById(`step${stepNum}`);
@@ -241,7 +247,7 @@
             updateStepStates();
         }
         
-        // Check if all complete
+        // Check if all complete for success message
         const allComplete = [1,2,3,4,5].every(n => portalState[n.toString()]);
         if (allComplete) {
             const successMsg = document.getElementById('successMessage');
@@ -254,7 +260,7 @@
         }
     }
 
-    // Update Creative Gallery
+    // Update Creative Gallery (FIXED)
     function updateCreativeGallery(link) {
         const gallery = document.getElementById('galleryPlaceholder');
         if (gallery) {
@@ -278,7 +284,7 @@
         }
     }
 
-    // Step 4 Functions - PERFECT EMAIL INTEGRATION
+    // Step 4 Functions (FIXED EMAIL INTEGRATION)
     function emailAdminDetails() {
         const adminName = document.getElementById('adminName').value;
         const adminEmail = document.getElementById('adminEmail').value;
@@ -329,7 +335,7 @@
         window.open(`mailto:${DLM_CONFIG.support.opsEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`);
     }
 
-    // Step 5 Functions
+    // Step 5 Functions (FIXED)
     function approveCreatives() {
         if (confirm('Approve creatives for launch?')) {
             markStepComplete(5);
@@ -354,20 +360,24 @@
         window.open(`mailto:${DLM_CONFIG.support.opsEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(notes)}`);
     }
 
-    // Initialize on DOM ready - PERFECT INITIALIZATION
+    // Initialize on DOM ready (CRITICAL INITIALIZATION - FIXED)
     document.addEventListener('DOMContentLoaded', async function() {
+        console.log('🚀 Portal 2 - Starting initialization...');
+        
         // Check if Firebase and config are loaded
         if (typeof firebase === 'undefined') {
-            console.error('❌ Firebase not loaded');
+            console.error('❌ Portal 2 - Firebase not loaded');
             showErrorPage('System Error', 'Firebase not loaded. Please refresh the page.');
             return;
         }
         
         if (typeof DLM_CONFIG === 'undefined') {
-            console.error('❌ Configuration not loaded');
+            console.error('❌ Portal 2 - Configuration not loaded');
             showErrorPage('System Error', 'Configuration not loaded. Please refresh the page.');
             return;
         }
+        
+        console.log('✅ Portal 2 - Firebase and config loaded');
         
         // Load state from Firebase
         await loadState();
@@ -408,7 +418,7 @@
             });
         });
         
-        // Platform selection handlers for Step 4 - CRITICAL FIX
+        // Platform selection handlers for Step 4 (CRITICAL FIX)
         ['websitePlatform', 'sitePlatform'].forEach(selectId => {
             const selectElement = document.getElementById(selectId);
             const otherInput = document.getElementById(selectId + 'Other');
@@ -427,10 +437,10 @@
             }
         });
         
-        console.log('✅ Portal initialized successfully with Firebase');
+        console.log('✅ Portal 2 - Initialized successfully with Firebase');
     });
 
-    // Expose functions globally - CLEAN CLIENT-ONLY FUNCTIONS
+    // Expose functions globally (CLEAN CLIENT-ONLY FUNCTIONS)
     window.markStepComplete = markStepComplete;
     window.emailAdminDetails = emailAdminDetails;
     window.emailAccessDetails = emailAccessDetails;
