@@ -201,19 +201,6 @@
             color: white;
         }
         
-        .portal-link {
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            color: #05908C;
-            text-decoration: none;
-            font-weight: 600;
-        }
-        
-        .portal-link:hover {
-            text-decoration: underline;
-        }
-        
         .copy-btn {
             padding: 4px 8px;
             background: #85C7B3;
@@ -649,6 +636,12 @@
                 
                 snapshot.forEach(doc => {
                     const data = doc.data();
+                    
+                    // Skip template document
+                    if (data.clientId === 'template_client_do_not_delete') {
+                        return;
+                    }
+                    
                     const portalLink = `${PORTAL_BASE_URL}?c=${data.clientId}`;
                     
                     const row = tbody.insertRow();
@@ -860,7 +853,23 @@
         
         // Load clients on page load
         document.addEventListener('DOMContentLoaded', () => {
+            // Check if Firebase is loaded
+            if (typeof firebase === 'undefined') {
+                showAlert('Firebase not loaded. Please check your internet connection and refresh.', 'error');
+                return;
+            }
+            
+            // Check if config is loaded
+            if (typeof DLM_CONFIG === 'undefined') {
+                showAlert('Configuration not loaded. Please check config.js file.', 'error');
+                return;
+            }
+            
+            // Load clients
             loadClients();
+            
+            console.log('✅ Admin dashboard initialized successfully');
+            console.log('📊 Portal URL configured as:', PORTAL_BASE_URL);
         });
     </script>
 </body>
