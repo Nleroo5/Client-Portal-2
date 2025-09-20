@@ -238,6 +238,19 @@
             border: 1px solid #ff6b6b;
         }
         
+        .link-section {
+            background: #F0F9F7;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+        
+        .link-section h3 {
+            color: #05908C;
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+        }
+        
         @media (max-width: 768px) {
             .form-row {
                 grid-template-columns: 1fr;
@@ -279,6 +292,38 @@
                     </div>
                 </div>
                 
+                <div class="link-section">
+                    <h3>DocuSign Links (Optional - Leave blank for defaults)</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="dpaLink">Custom DPA Link</label>
+                            <input type="url" id="dpaLink" placeholder="Leave blank for default">
+                        </div>
+                        <div class="form-group">
+                            <label for="serviceAgreementLink">Custom Service Agreement</label>
+                            <input type="url" id="serviceAgreementLink" placeholder="Leave blank for default">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="link-section">
+                    <h3>Other Links (Optional)</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="googleDriveLink">Google Drive Upload Link</label>
+                            <input type="url" id="googleDriveLink" placeholder="Leave blank for default">
+                        </div>
+                        <div class="form-group">
+                            <label for="invoiceLink">Invoice Payment Link</label>
+                            <input type="url" id="invoiceLink" placeholder="Stripe payment link">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="creativeLink">Creative Preview Link</label>
+                        <input type="url" id="creativeLink" placeholder="Add later when creatives are ready">
+                    </div>
+                </div>
+                
                 <button type="submit" class="btn btn-primary">Create Client Portal</button>
             </form>
         </div>
@@ -303,23 +348,11 @@
         </div>
     </div>
     
+    <!-- FIXED: Load centralized configuration -->
+    <script src="config.js"></script>
     <script>
-        // Firebase Configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyBb5ZBhQtAh-qMeX-La39-Nuf2mWmCtidg",
-            authDomain: "client-portal-2-1d21e.firebaseapp.com",
-            projectId: "client-portal-2-1d21e",
-            storageBucket: "client-portal-2-1d21e.firebasestorage.app",
-            messagingSenderId: "626281176830",
-            appId: "1:626281176830:web:7f3026cd2f985bc6190faf"
-        };
-
-        // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
-
-        // Portal URL
-        const PORTAL_BASE_URL = "https://portal2.driveleadmedia.com";
+        // FIXED: Use centralized configuration instead of duplicate Firebase config
+        const PORTAL_BASE_URL = DLM_CONFIG.portal.baseUrl;
         
         // Show alert message
         function showAlert(message, type = 'success') {
@@ -364,17 +397,26 @@
                 step2Complete: false,
                 step3Complete: false,
                 step4Complete: false,
-                step5Complete: false
+                step5Complete: false,
+                
+                // Custom links (only save if provided)
+                dpaLink: document.getElementById('dpaLink').value || null,
+                serviceAgreementLink: document.getElementById('serviceAgreementLink').value || null,
+                
+                // Other links
+                googleDriveLink: document.getElementById('googleDriveLink').value || null,
+                invoiceLink: document.getElementById('invoiceLink').value || null,
+                creativeLink: document.getElementById('creativeLink').value || null
             };
             
             try {
                 await db.collection('clients').doc(clientId).set(clientData);
-                showAlert(`Client portal created successfully! Portal link: ${PORTAL_BASE_URL}?c=${clientId}`);
+                showAlert(`✅ Client portal created! Portal link: ${PORTAL_BASE_URL}?c=${clientId}`);
                 document.getElementById('createClientForm').reset();
                 loadClients();
             } catch (error) {
                 console.error('Error creating client:', error);
-                showAlert('Error creating client portal. Please try again.', 'error');
+                showAlert('❌ Error creating client portal. Please try again.', 'error');
             }
         });
         
@@ -426,7 +468,7 @@
                 });
             } catch (error) {
                 console.error('Error loading clients:', error);
-                showAlert('Error loading clients', 'error');
+                showAlert('❌ Error loading clients', 'error');
             }
         }
         
@@ -435,7 +477,7 @@
             const input = document.getElementById(`link-${clientId}`);
             input.select();
             document.execCommand('copy');
-            showAlert('Portal link copied to clipboard!');
+            showAlert('📋 Portal link copied to clipboard!');
         }
         
         // Toggle client status
@@ -445,11 +487,11 @@
                     active: activate,
                     lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
                 });
-                showAlert(`Client ${activate ? 'activated' : 'deactivated'} successfully`);
+                showAlert(`✅ Client ${activate ? 'activated' : 'deactivated'} successfully`);
                 loadClients();
             } catch (error) {
                 console.error('Error updating status:', error);
-                showAlert('Error updating client status', 'error');
+                showAlert('❌ Error updating client status', 'error');
             }
         }
         
@@ -462,14 +504,14 @@
             if (userInput === 'DELETE') {
                 try {
                     await db.collection('clients').doc(clientId).delete();
-                    showAlert(`Client "${clientName}" deleted successfully`);
+                    showAlert(`✅ Client "${clientName}" deleted successfully`);
                     loadClients();
                 } catch (error) {
                     console.error('Error deleting client:', error);
-                    showAlert('Error deleting client. Please try again.', 'error');
+                    showAlert('❌ Error deleting client. Please try again.', 'error');
                 }
             } else if (userInput !== null) {
-                showAlert('Deletion cancelled - incorrect confirmation text', 'error');
+                showAlert('❌ Deletion cancelled - incorrect confirmation text', 'error');
             }
         }
         
@@ -477,7 +519,13 @@
         document.addEventListener('DOMContentLoaded', () => {
             // Check if Firebase is loaded
             if (typeof firebase === 'undefined') {
-                showAlert('Firebase not loaded. Please check your internet connection and refresh.', 'error');
+                showAlert('❌ Firebase not loaded. Please check your internet connection and refresh.', 'error');
+                return;
+            }
+            
+            // Check if config is loaded
+            if (typeof DLM_CONFIG === 'undefined') {
+                showAlert('❌ Configuration not loaded. Please check config.js file.', 'error');
                 return;
             }
             
@@ -485,7 +533,7 @@
             loadClients();
             
             console.log('✅ Admin dashboard initialized successfully');
-            console.log('📊 Portal URL configured as:', PORTAL_BASE_URL);
+            console.log('🌐 Portal URL configured as:', PORTAL_BASE_URL);
         });
     </script>
 </body>
