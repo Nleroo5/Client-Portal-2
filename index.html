@@ -123,7 +123,7 @@
                 </div>
             </div>
             <div class="step-actions">
-                <button class="btn btn-complete" onclick="window.markStepComplete(1)">Mark Step 1 Complete</button>
+                <button class="btn btn-complete" onclick="markStepComplete(1)">Mark Step 1 Complete</button>
             </div>
         </div>
 
@@ -144,7 +144,7 @@
                 </a>
             </div>
             <div class="step-actions">
-                <button class="btn btn-complete" onclick="window.markStepComplete(2)">Mark Step 2 Complete</button>
+                <button class="btn btn-complete" onclick="markStepComplete(2)">Mark Step 2 Complete</button>
             </div>
         </div>
 
@@ -191,7 +191,7 @@
                 <div style="margin: 30px 0 20px 0; border-top: 2px solid rgba(133, 199, 179, 0.3); padding-top: 25px;">
                     <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 15px; flex-wrap: wrap;">
                         <h4 style="color: #012E40; margin: 0;">📁 Brand Kit Upload:</h4>
-                        <button class="btn btn-small btn-outline" id="brandKitInfoBtn" style="font-size: 0.8rem; padding: 4px 12px;" onclick="window.toggleBrandKitInfo()">
+                        <button class="btn btn-small btn-outline" id="brandKitInfoBtn" style="font-size: 0.8rem; padding: 4px 12px;" onclick="toggleBrandKitInfo()">
                             What is a brand kit?
                         </button>
                     </div>
@@ -234,7 +234,7 @@
                 </div>
             </div>
             <div class="step-actions">
-                <button class="btn btn-complete" onclick="window.markStepComplete(3)">Mark Step 3 Complete</button>
+                <button class="btn btn-complete" onclick="markStepComplete(3)">Mark Step 3 Complete</button>
             </div>
         </div>
 
@@ -296,7 +296,7 @@
                         <strong>We'll contact them directly</strong> to coordinate tracking installation.
                     </p>
                     <div style="margin-top: 15px;">
-                        <button class="btn btn-secondary btn-small" onclick="window.emailAdminDetails()">Email Admin Details to Us</button>
+                        <button class="btn btn-secondary btn-small" onclick="emailAdminDetails()">Email Admin Details to Us</button>
                     </div>
                 </div>
 
@@ -336,15 +336,15 @@
                         <strong>🔒 Secure:</strong> We'll install tracking and remove our access immediately. You can change the password afterward.
                     </p>
                     <div style="margin-top: 15px;">
-                        <button class="btn btn-secondary btn-small" onclick="window.emailAccessDetails()">Send Access Details Securely</button>
+                        <button class="btn btn-secondary btn-small" onclick="emailAccessDetails()">Send Access Details Securely</button>
                     </div>
                 </div>
 
                 <div style="margin-top: 25px; background: #F0F9F7; padding: 15px; border-radius: 8px;">
                     <div class="info-header">
                         <h5>What We Install:</h5>
-                        <button class="btn-info" onclick="window.toggleGA4Info()">What is GA4?</button>
-                        <button class="btn-info" onclick="window.togglePixelInfo()">What is Meta Pixel?</button>
+                        <button class="btn-info" onclick="toggleGA4Info()">What is GA4?</button>
+                        <button class="btn-info" onclick="togglePixelInfo()">What is Meta Pixel?</button>
                     </div>
                     
                     <!-- GA4 Explanation (hidden initially) -->
@@ -375,7 +375,7 @@
                 </div>
             </div>
             <div class="step-actions">
-                <button class="btn btn-complete" onclick="window.markStepComplete(4)">Mark Step 4 Complete</button>
+                <button class="btn btn-complete" onclick="markStepComplete(4)">Mark Step 4 Complete</button>
             </div>
         </div>
 
@@ -397,10 +397,10 @@
                 </div>
                 
                 <div style="margin: 20px 0;">
-                    <button class="btn btn-secondary" onclick="window.approveCreatives()">
+                    <button class="btn btn-secondary" onclick="approveCreatives()">
                         🚀 Approve to Launch
                     </button>
-                    <button class="btn btn-outline" onclick="window.requestRevisions()">
+                    <button class="btn btn-outline" onclick="requestRevisions()">
                         Request Revisions
                     </button>
                 </div>
@@ -412,11 +412,11 @@
                         <label for="revisionNotes">Revision Notes</label>
                         <textarea id="revisionNotes" rows="4" placeholder="Please describe the changes..."></textarea>
                     </div>
-                    <button class="btn" onclick="window.submitRevisions()">Submit Revisions</button>
+                    <button class="btn" onclick="submitRevisions()">Submit Revisions</button>
                 </div>
             </div>
             <div class="step-actions">
-                <button class="btn btn-complete" onclick="window.markStepComplete(5)">Mark Step 5 Complete</button>
+                <button class="btn btn-complete" onclick="markStepComplete(5)">Mark Step 5 Complete</button>
             </div>
         </div>
 
@@ -424,7 +424,7 @@
         <div class="portal-footer">
             <p>Drive Lead Media — We never process PHI. All analytics used solely for advertising performance.</p>
             <div class="footer-links">
-                <a href="#" onclick="window.resetProgress(); return false;">Reset progress</a>
+                <a href="#" onclick="resetProgress(); return false;">Reset progress</a>
                 <span>•</span>
                 <span id="contactEmail">Nicolas@driveleadmedia.com</span>
                 <span>•</span>
@@ -440,7 +440,471 @@
     <!-- Configuration -->
     <script src="config.js"></script>
     
-    <!-- Main Functions -->
-    <script src="functions.js"></script>
+    <!-- Client-Only Functions -->
+    <script>
+        // Portal State
+        let portalState = {
+            "1": false,
+            "2": false,
+            "3": false,
+            "4": false,
+            "5": false,
+            "creativeLink": null,
+            "googleDriveLink": null,
+            "invoiceLink": null,
+            "docuSignLinks": {
+                "serviceAgreement": null,
+                "dpa": null
+            }
+        };
+
+        // Load state from Firebase
+        async function loadState() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const clientId = urlParams.get('c');
+            
+            if (!clientId) {
+                // Use localStorage for testing without client ID
+                const STORAGE_KEY = 'dlm_portal_v1';
+                try {
+                    const saved = localStorage.getItem(STORAGE_KEY);
+                    if (saved) {
+                        const savedState = JSON.parse(saved);
+                        portalState = { ...portalState, ...savedState };
+                    }
+                } catch (e) {
+                    console.warn('Could not load state from localStorage:', e);
+                }
+                return;
+            }
+            
+            try {
+                const doc = await db.collection('clients').doc(clientId).get();
+                
+                if (!doc.exists) {
+                    console.warn('Client not found');
+                    return;
+                }
+                
+                const data = doc.data();
+                
+                if (!data.active) {
+                    document.body.innerHTML = '<div style="text-align:center; padding:50px; color:#012E40; background: linear-gradient(135deg, #012E40 0%, #05908C 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center;"><div style="background: #EEF4D9; padding: 40px; border-radius: 15px; max-width: 500px;"><h1 style="font-family: Young Serif, serif; margin-bottom: 20px;">Portal Inactive</h1><p style="font-size: 1.1rem;">This portal is currently inactive. Please contact Drive Lead Media.</p><p style="margin-top: 20px; color: #05908C;">Contact: Nicolas@driveleadmedia.com</p></div></div>';
+                    return;
+                }
+                
+                // Load client name if available
+                if (data.clientName) {
+                    const hero = document.querySelector('.hero h1');
+                    if (hero) {
+                        hero.textContent = `Welcome, ${data.clientName}!`;
+                    }
+                }
+                
+                // Load progress from Firebase
+                portalState['1'] = data.step1Complete || false;
+                portalState['2'] = data.step2Complete || false;
+                portalState['3'] = data.step3Complete || false;
+                portalState['4'] = data.step4Complete || false;
+                portalState['5'] = data.step5Complete || false;
+                
+                // Load custom DocuSign links
+                if (data.dpaLink) {
+                    portalState.docuSignLinks.dpa = data.dpaLink;
+                }
+                
+                if (data.serviceAgreementLink) {
+                    portalState.docuSignLinks.serviceAgreement = data.serviceAgreementLink;
+                }
+                
+                // Load other links
+                if (data.invoiceLink) {
+                    portalState.invoiceLink = data.invoiceLink;
+                }
+                
+                if (data.googleDriveLink) {
+                    portalState.googleDriveLink = data.googleDriveLink;
+                }
+                
+                if (data.creativeLink) {
+                    portalState.creativeLink = data.creativeLink;
+                }
+                
+                // Store client ID for saving
+                window.currentClientId = clientId;
+                
+            } catch (error) {
+                console.error('Error loading from Firebase:', error);
+            }
+        }
+
+        // Save state to Firebase
+        async function saveState() {
+            if (window.currentClientId) {
+                try {
+                    await db.collection('clients').doc(window.currentClientId).update({
+                        step1Complete: portalState['1'],
+                        step2Complete: portalState['2'],
+                        step3Complete: portalState['3'],
+                        step4Complete: portalState['4'],
+                        step5Complete: portalState['5'],
+                        lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                } catch (error) {
+                    console.error('Error saving to Firebase:', error);
+                }
+            } else {
+                // Fallback to localStorage if no client ID
+                const STORAGE_KEY = 'dlm_portal_v1';
+                try {
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify(portalState));
+                } catch (e) {
+                    console.warn('Could not save state to localStorage:', e);
+                }
+            }
+        }
+
+        // Update Progress Bar
+        function updateProgressBar() {
+            const completedSteps = Object.keys(portalState)
+                .filter(key => !isNaN(key) && portalState[key]).length;
+            const totalSteps = 5;
+            const percentage = Math.round((completedSteps / totalSteps) * 100);
+            
+            const fill = document.getElementById('progressFill');
+            const text = document.getElementById('progressText');
+            const percent = document.getElementById('progressPercent');
+            
+            if (fill) fill.style.width = percentage + '%';
+            if (text) text.textContent = `${completedSteps} of ${totalSteps} steps completed`;
+            if (percent) percent.textContent = percentage + '%';
+            
+            return { completedSteps, percentage };
+        }
+
+        // Update Floating Sidebar
+        function updateFloatingSidebar() {
+            const { completedSteps, percentage } = updateProgressBar();
+            
+            // Update circle
+            const circle = document.getElementById('sidebarProgressCircle');
+            if (circle) {
+                const offset = 126 - (percentage / 100 * 126);
+                circle.style.strokeDashoffset = offset;
+            }
+            
+            // Update percentage text
+            const percentText = document.getElementById('sidebarProgressPercent');
+            if (percentText) percentText.textContent = percentage + '%';
+            
+            // Update dynamic message
+            const msg = document.getElementById('sidebarProgressMessage');
+            if (msg) {
+                if (percentage === 0) msg.textContent = "Let's get started!";
+                else if (percentage === 20) msg.textContent = "Great beginning!";
+                else if (percentage === 40) msg.textContent = "Making progress";
+                else if (percentage === 60) msg.textContent = "Over halfway!";
+                else if (percentage === 80) msg.textContent = "Almost there!";
+                else if (percentage === 100) msg.textContent = "All complete! 🎉";
+            }
+            
+            // Update step bubbles
+            for (let i = 1; i <= 5; i++) {
+                const bubble = document.getElementById(`sidebarBubble${i}`);
+                if (bubble) {
+                    bubble.className = 'sidebar-step-bubble upcoming';
+                    if (portalState[i.toString()]) {
+                        bubble.className = 'sidebar-step-bubble completed';
+                    } else if (i === 1 || portalState[(i - 1).toString()]) {
+                        if (!portalState[i.toString()]) {
+                            bubble.className = 'sidebar-step-bubble current';
+                        }
+                    }
+                }
+            }
+        }
+
+        // Update Step States
+        function updateStepStates() {
+            for (let i = 1; i <= 5; i++) {
+                const step = document.getElementById(`step${i}`);
+                if (step) {
+                    const isCompleted = portalState[i.toString()];
+                    const isUnlocked = i === 1 || portalState[(i - 1).toString()];
+                    
+                    step.classList.toggle('completed', isCompleted);
+                    step.classList.toggle('locked', !isUnlocked);
+                    
+                    const btn = step.querySelector('.btn-complete');
+                    if (btn) {
+                        btn.textContent = isCompleted ? `✓ Step ${i} Completed` : `Mark Step ${i} Complete`;
+                        if (isCompleted) btn.setAttribute('disabled', 'true');
+                        else btn.removeAttribute('disabled');
+                    }
+                }
+            }
+            updateFloatingSidebar();
+        }
+
+        // Mark Step Complete - CLIENT ONLY VERSION
+        function markStepComplete(stepNum) {
+            portalState[stepNum.toString()] = true;
+            saveState();
+            
+            // Add completing animation to button
+            const step = document.getElementById(`step${stepNum}`);
+            const btn = step?.querySelector('.btn-complete');
+            if (btn) {
+                btn.classList.add('completing');
+                setTimeout(() => btn.classList.remove('completing'), 600);
+            }
+            
+            // Add green flash effect to step
+            if (step) {
+                step.style.transition = 'none';
+                step.style.boxShadow = '0 0 0 rgba(34, 197, 94, 0)';
+                setTimeout(() => {
+                    step.style.transition = 'all 0.8s ease';
+                    step.style.boxShadow = '0 0 50px rgba(34, 197, 94, 0.8)';
+                    setTimeout(() => {
+                        updateStepStates();
+                    }, 200);
+                }, 10);
+            } else {
+                updateStepStates();
+            }
+            
+            // Check if all complete
+            const allComplete = [1,2,3,4,5].every(n => portalState[n.toString()]);
+            if (allComplete) {
+                const successMsg = document.getElementById('successMessage');
+                if (successMsg) {
+                    setTimeout(() => {
+                        successMsg.style.display = 'block';
+                        successMsg.classList.add('celebrate');
+                        successMsg.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        
+                        // Trigger confetti animation
+                        const confetti = document.getElementById('confetti');
+                        if (confetti) {
+                            const parent = confetti.parentNode;
+                            const newConfetti = confetti.cloneNode(true);
+                            parent.removeChild(confetti);
+                            parent.appendChild(newConfetti);
+                        }
+                        
+                        setTimeout(() => {
+                            successMsg.classList.remove('celebrate');
+                        }, 600);
+                    }, 1000);
+                }
+            }
+        }
+
+        function updateCreativeGallery(link) {
+            const gallery = document.getElementById('galleryPlaceholder');
+            if (link) {
+                gallery.innerHTML = `
+                    <p style="color: #012E40; margin-bottom: 15px; font-weight: 600;">
+                        🎨 Your Creative Previews Are Ready!
+                    </p>
+                    <a href="${link}" class="btn" target="_blank" rel="noopener">
+                        View Creative Previews
+                    </a>
+                `;
+            } else {
+                gallery.innerHTML = `
+                    <p>Creative previews will be shared via secure link</p>
+                    <p style="font-size: 0.9rem; color: #85C7B3; margin-top: 10px;">
+                        Links will be provided once creatives are ready for review
+                    </p>
+                `;
+            }
+        }
+
+        function resetProgress() {
+            if (confirm('Are you sure you want to reset all progress?')) {
+                if (window.currentClientId) {
+                    // Reset Firebase data
+                    db.collection('clients').doc(window.currentClientId).update({
+                        step1Complete: false,
+                        step2Complete: false,
+                        step3Complete: false,
+                        step4Complete: false,
+                        step5Complete: false,
+                        lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
+                    }).then(() => {
+                        location.reload();
+                    }).catch(() => {
+                        localStorage.removeItem('dlm_portal_v1');
+                        location.reload();
+                    });
+                } else {
+                    localStorage.removeItem('dlm_portal_v1');
+                    location.reload();
+                }
+            }
+        }
+
+        // Step 3 Functions
+        function toggleBrandKitInfo() {
+            const infoBox = document.getElementById('brandKitInfo');
+            const isVisible = infoBox.style.display === 'block';
+            infoBox.style.display = isVisible ? 'none' : 'block';
+        }
+
+        // Step 4 Functions
+        function toggleGA4Info() {
+            const infoBox = document.getElementById('ga4Info');
+            const isVisible = infoBox.style.display === 'block';
+            infoBox.style.display = isVisible ? 'none' : 'block';
+        }
+
+        function togglePixelInfo() {
+            const infoBox = document.getElementById('pixelInfo');
+            const isVisible = infoBox.style.display === 'block';
+            infoBox.style.display = isVisible ? 'none' : 'block';
+        }
+
+        function emailAdminDetails() {
+            const adminName = document.getElementById('adminName').value;
+            const adminEmail = document.getElementById('adminEmail').value;
+            const adminPhone = document.getElementById('adminPhone').value;
+            const platform = document.getElementById('websitePlatform').value;
+            const platformOther = document.getElementById('websitePlatformOther').value;
+            
+            if (!adminEmail) {
+                alert('Please enter admin email address');
+                return;
+            }
+            
+            const platformText = platform === 'other' ? platformOther : platform;
+            const subject = 'Website Admin Contact Details - Client Portal';
+            const body = `Website Admin Contact Details:\n\n` +
+                `Name: ${adminName || 'Not provided'}\n` +
+                `Email: ${adminEmail}\n` +
+                `Phone: ${adminPhone || 'Not provided'}\n` +
+                `Platform: ${platformText || 'Not specified'}\n\n` +
+                `Please contact them to coordinate tracking installation.`;
+            
+            window.open(`mailto:${DLM_CONFIG.support.opsEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`);
+        }
+
+        function emailAccessDetails() {
+            const websiteUrl = document.getElementById('websiteUrl').value;
+            const loginUrl = document.getElementById('loginUrl').value;
+            const username = document.getElementById('tempUsername').value;
+            const password = document.getElementById('tempPassword').value;
+            const platform = document.getElementById('sitePlatform').value;
+            const platformOther = document.getElementById('sitePlatformOther').value;
+            
+            if (!websiteUrl || !username || !password) {
+                alert('Please fill in all required fields');
+                return;
+            }
+            
+            const platformText = platform === 'other' ? platformOther : platform;
+            const subject = 'Temporary Website Access Details - Client Portal';
+            const body = `Temporary Website Access Details:\n\n` +
+                `Website URL: ${websiteUrl}\n` +
+                `Login URL: ${loginUrl || 'Not provided'}\n` +
+                `Username: ${username}\n` +
+                `Password: ${password}\n` +
+                `Platform: ${platformText || 'Not specified'}\n\n` +
+                `Please install tracking and remove access when complete.`;
+            
+            window.open(`mailto:${DLM_CONFIG.support.opsEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`);
+        }
+
+        // Step 5 Functions
+        function approveCreatives() {
+            if (confirm('Approve creatives for launch?')) {
+                markStepComplete(5);
+                alert('Approved! Your campaign will launch within 24-48 hours.');
+            }
+        }
+
+        function requestRevisions() {
+            const form = document.getElementById('revisionForm');
+            form.style.display = form.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function submitRevisions() {
+            const notes = document.getElementById('revisionNotes').value;
+            if (!notes) {
+                alert('Please enter revision notes');
+                return;
+            }
+            const subject = 'Creative Revision Request';
+            window.open(`mailto:${DLM_CONFIG.support.opsEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(notes)}`);
+        }
+
+        // Initialize on DOM ready
+        document.addEventListener('DOMContentLoaded', async function() {
+            await loadState();
+            updateStepStates();
+            
+            // Set DocuSign links (use custom if available, otherwise use default)
+            const serviceAgreementBtn = document.getElementById('serviceAgreementBtn');
+            const dpaBtn = document.getElementById('dpaBtn');
+            const invoiceBtn = document.getElementById('invoiceBtn');
+            
+            if (serviceAgreementBtn) {
+                serviceAgreementBtn.href = (portalState.docuSignLinks?.serviceAgreement) || DLM_CONFIG.docuSign.serviceAgreement;
+            }
+            if (dpaBtn) {
+                dpaBtn.href = (portalState.docuSignLinks?.dpa) || DLM_CONFIG.docuSign.dpa;
+            }
+            if (invoiceBtn) {
+                invoiceBtn.href = portalState.invoiceLink || DLM_CONFIG.invoiceLink;
+            }
+            
+            // Set contact info
+            document.getElementById('contactEmail').textContent = DLM_CONFIG.support.opsEmail;
+            document.getElementById('contactPhone').textContent = DLM_CONFIG.support.opsPhone;
+            
+            // Load creative gallery
+            if (portalState.creativeLink) {
+                updateCreativeGallery(portalState.creativeLink);
+            }
+            
+            // Set Google Drive link if custom one exists
+            if (portalState.googleDriveLink) {
+                const uploadBtn = document.getElementById('uploadBtn');
+                if (uploadBtn) uploadBtn.href = portalState.googleDriveLink;
+            }
+            
+            // Step 4 website access event listeners
+            document.querySelectorAll('input[name="websiteAccess"]').forEach(radio => {
+                radio.addEventListener('change', function() {
+                    document.getElementById('connectAdminForm').style.display = 
+                        this.value === 'connect' ? 'block' : 'none';
+                    document.getElementById('tempAccessForm').style.display = 
+                        this.value === 'temporary' ? 'block' : 'none';
+                });
+            });
+            
+            // Platform selection handlers for Step 4
+            ['websitePlatform', 'sitePlatform'].forEach(selectId => {
+                const selectElement = document.getElementById(selectId);
+                const otherInput = document.getElementById(selectId + 'Other');
+                
+                if (selectElement && otherInput) {
+                    selectElement.addEventListener('change', function() {
+                        if (this.value === 'other') {
+                            otherInput.style.display = 'block';
+                            otherInput.required = true;
+                        } else {
+                            otherInput.style.display = 'none';
+                            otherInput.required = false;
+                            otherInput.value = '';
+                        }
+                    });
+                }
+            });
+            
+            console.log('✓ Client portal initialized successfully');
+        });
+    </script>
 </body>
 </html>
