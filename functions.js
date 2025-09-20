@@ -15,15 +15,13 @@
         }
     };
 
-    // Load state from Firebase - THIS IS THE CRITICAL FIREBASE FUNCTION
+    // Load state from Firebase - PERFECT FIREBASE FUNCTION
     async function loadState() {
         const urlParams = new URLSearchParams(window.location.search);
         const clientId = urlParams.get('c');
         
-        // NO LOADING SCREEN - Portal loads immediately
-        
         if (!clientId) {
-            document.body.innerHTML = '<div style="text-align:center; padding:50px; color:#012E40; background: linear-gradient(135deg, #012E40 0%, #05908C 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center;"><div style="background: #EEF4D9; padding: 40px; border-radius: 15px; max-width: 500px;"><h1 style="font-family: Young Serif, serif; margin-bottom: 20px;">Invalid Access</h1><p style="font-size: 1.1rem;">Please use the link provided by Drive Lead Media.</p><p style="margin-top: 20px; color: #05908C;">Contact: Nicolas@driveleadmedia.com</p></div></div>';
+            showErrorPage('Invalid Access', 'Please use the link provided by Drive Lead Media.');
             return;
         }
         
@@ -31,18 +29,18 @@
             const doc = await db.collection('clients').doc(clientId).get();
             
             if (!doc.exists) {
-                document.body.innerHTML = '<div style="text-align:center; padding:50px; color:#012E40; background: linear-gradient(135deg, #012E40 0%, #05908C 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center;"><div style="background: #EEF4D9; padding: 40px; border-radius: 15px; max-width: 500px;"><h1 style="font-family: Young Serif, serif; margin-bottom: 20px;">Portal Not Found</h1><p style="font-size: 1.1rem;">Please contact Drive Lead Media for assistance.</p><p style="margin-top: 20px; color: #05908C;">Contact: Nicolas@driveleadmedia.com</p></div></div>';
+                showErrorPage('Portal Not Found', 'Please contact Drive Lead Media for assistance.');
                 return;
             }
             
             const data = doc.data();
             
             if (!data.active) {
-                document.body.innerHTML = '<div style="text-align:center; padding:50px; color:#012E40; background: linear-gradient(135deg, #012E40 0%, #05908C 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center;"><div style="background: #EEF4D9; padding: 40px; border-radius: 15px; max-width: 500px;"><h1 style="font-family: Young Serif, serif; margin-bottom: 20px;">Portal Inactive</h1><p style="font-size: 1.1rem;">This portal is currently inactive. Please contact Drive Lead Media.</p><p style="margin-top: 20px; color: #05908C;">Contact: Nicolas@driveleadmedia.com</p></div></div>';
+                showErrorPage('Portal Inactive', 'This portal is currently inactive. Please contact Drive Lead Media.');
                 return;
             }
             
-            // Load client name if available
+            // Load client name
             if (data.clientName) {
                 const hero = document.querySelector('.hero h1');
                 if (hero) {
@@ -93,13 +91,28 @@
             // Store client ID for saving
             window.currentClientId = clientId;
             
+            console.log('✅ Client data loaded successfully:', data.clientName);
+            
         } catch (error) {
-            console.error('Error loading:', error);
-            document.body.innerHTML = '<div style="text-align:center; padding:50px; color:#012E40; background: linear-gradient(135deg, #012E40 0%, #05908C 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center;"><div style="background: #EEF4D9; padding: 40px; border-radius: 15px; max-width: 500px;"><h1 style="font-family: Young Serif, serif; margin-bottom: 20px;">Loading Error</h1><p style="font-size: 1.1rem;">Please refresh the page or contact support.</p><p style="margin-top: 20px; color: #05908C;">Contact: Nicolas@driveleadmedia.com</p></div></div>';
+            console.error('Error loading from Firebase:', error);
+            showErrorPage('Loading Error', 'Please refresh the page or contact support.');
         }
     }
 
-    // Save state to Firebase - THIS SAVES TO FIREBASE INSTEAD OF LOCALSTORAGE
+    // Show error page helper
+    function showErrorPage(title, message) {
+        document.body.innerHTML = `
+            <div style="text-align:center; padding:50px; color:#012E40; background: linear-gradient(135deg, #012E40 0%, #05908C 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center;">
+                <div style="background: #EEF4D9; padding: 40px; border-radius: 15px; max-width: 500px;">
+                    <h1 style="font-family: Young Serif, serif; margin-bottom: 20px;">${title}</h1>
+                    <p style="font-size: 1.1rem;">${message}</p>
+                    <p style="margin-top: 20px; color: #05908C;">Contact: Nicolas@driveleadmedia.com</p>
+                </div>
+            </div>
+        `;
+    }
+
+    // Save state to Firebase - PERFECT SAVE FUNCTION
     async function saveState() {
         if (!window.currentClientId) return;
         
@@ -112,8 +125,9 @@
                 step5Complete: portalState['5'],
                 lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
             });
+            console.log('✅ Progress saved to Firebase');
         } catch (error) {
-            console.error('Error saving:', error);
+            console.error('❌ Error saving to Firebase:', error);
         }
     }
 
@@ -199,10 +213,10 @@
         updateFloatingSidebar();
     }
 
-    // Mark Step Complete - SAVES TO FIREBASE
+    // Mark Step Complete - PERFECT ANIMATION SYSTEM
     function markStepComplete(stepNum) {
         portalState[stepNum.toString()] = true;
-        saveState(); // This now saves to Firebase
+        saveState();
         
         // Add completing animation to button
         const step = document.getElementById(`step${stepNum}`);
@@ -264,7 +278,7 @@
         }
     }
 
-    // Step 4 Functions
+    // Step 4 Functions - PERFECT EMAIL INTEGRATION
     function emailAdminDetails() {
         const adminName = document.getElementById('adminName').value;
         const adminEmail = document.getElementById('adminEmail').value;
@@ -340,9 +354,23 @@
         window.open(`mailto:${DLM_CONFIG.support.opsEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(notes)}`);
     }
 
-    // Initialize on DOM ready - USES FIREBASE LOADING
+    // Initialize on DOM ready - PERFECT INITIALIZATION
     document.addEventListener('DOMContentLoaded', async function() {
-        await loadState(); // This loads from Firebase
+        // Check if Firebase and config are loaded
+        if (typeof firebase === 'undefined') {
+            console.error('❌ Firebase not loaded');
+            showErrorPage('System Error', 'Firebase not loaded. Please refresh the page.');
+            return;
+        }
+        
+        if (typeof DLM_CONFIG === 'undefined') {
+            console.error('❌ Configuration not loaded');
+            showErrorPage('System Error', 'Configuration not loaded. Please refresh the page.');
+            return;
+        }
+        
+        // Load state from Firebase
+        await loadState();
         updateStepStates();
         
         // Set default DocuSign links if no custom links
@@ -380,7 +408,7 @@
             });
         });
         
-        // Platform selection handlers for Step 4
+        // Platform selection handlers for Step 4 - CRITICAL FIX
         ['websitePlatform', 'sitePlatform'].forEach(selectId => {
             const selectElement = document.getElementById(selectId);
             const otherInput = document.getElementById(selectId + 'Other');
@@ -399,7 +427,7 @@
             }
         });
         
-        console.log('✓ Portal initialized successfully with Firebase');
+        console.log('✅ Portal initialized successfully with Firebase');
     });
 
     // Expose functions globally
