@@ -7,6 +7,11 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Young+Serif:wght@400&display=swap" rel="stylesheet">
+    
+    <!-- Firebase Scripts -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    
     <style>
         * {
             box-sizing: border-box;
@@ -201,19 +206,6 @@
             color: white;
         }
         
-        .portal-link {
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            color: #05908C;
-            text-decoration: none;
-            font-weight: 600;
-        }
-        
-        .portal-link:hover {
-            text-decoration: underline;
-        }
-        
         .copy-btn {
             padding: 4px 8px;
             background: #85C7B3;
@@ -259,7 +251,6 @@
             margin-bottom: 10px;
         }
         
-        /* Edit Modal Styles */
         .modal-overlay {
             position: fixed;
             top: 0;
@@ -568,18 +559,12 @@
         </div>
     </div>
     
-    <!-- Firebase Scripts -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
-    
     <!-- Configuration -->
     <script src="config.js"></script>
     
     <script>
-        // Use centralized configuration
+        // PERFECT ADMIN DASHBOARD SCRIPT
         const PORTAL_BASE_URL = DLM_CONFIG.portal.baseUrl;
-        
-        // Current client being edited
         let currentEditingClient = null;
         
         // Show alert message
@@ -630,8 +615,6 @@
                 // Custom links (only save if provided)
                 dpaLink: document.getElementById('dpaLink').value || null,
                 serviceAgreementLink: document.getElementById('serviceAgreementLink').value || null,
-                
-                // Other links
                 googleDriveLink: document.getElementById('googleDriveLink').value || null,
                 invoiceLink: document.getElementById('invoiceLink').value || null,
                 creativeLink: document.getElementById('creativeLink').value || null
@@ -723,7 +706,7 @@
             }
         }
         
-        // Edit client - Open modal with current data
+        // Edit client
         async function editClient(clientId) {
             try {
                 const doc = await db.collection('clients').doc(clientId).get();
@@ -735,7 +718,7 @@
                 const data = doc.data();
                 currentEditingClient = clientId;
                 
-                // Populate form with current data
+                // Populate form
                 document.getElementById('editClientId').value = clientId;
                 document.getElementById('editClientName').value = data.clientName || '';
                 document.getElementById('editClientEmail').value = data.clientEmail || '';
@@ -748,11 +731,9 @@
                 document.getElementById('editStep4').checked = data.step4Complete || false;
                 document.getElementById('editStep5').checked = data.step5Complete || false;
                 
-                // DocuSign links
+                // Links
                 document.getElementById('editDpaLink').value = data.dpaLink || '';
                 document.getElementById('editServiceAgreementLink').value = data.serviceAgreementLink || '';
-                
-                // Other links
                 document.getElementById('editGoogleDriveLink').value = data.googleDriveLink || '';
                 document.getElementById('editInvoiceLink').value = data.invoiceLink || '';
                 document.getElementById('editCreativeLink').value = data.creativeLink || '';
@@ -813,11 +794,9 @@
                 step4Complete: document.getElementById('editStep4').checked,
                 step5Complete: document.getElementById('editStep5').checked,
                 
-                // DocuSign links (null if empty)
+                // Links
                 dpaLink: document.getElementById('editDpaLink').value || null,
                 serviceAgreementLink: document.getElementById('editServiceAgreementLink').value || null,
-                
-                // Other links (null if empty)
                 googleDriveLink: document.getElementById('editGoogleDriveLink').value || null,
                 invoiceLink: document.getElementById('editInvoiceLink').value || null,
                 creativeLink: document.getElementById('editCreativeLink').value || null
@@ -858,39 +837,33 @@
             }
         }
         
-        // Close modal when clicking outside
+        // Event listeners
         document.getElementById('editModal').addEventListener('click', (e) => {
             if (e.target === document.getElementById('editModal')) {
                 closeEditModal();
             }
         });
         
-        // Close modal with Escape key
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape' && document.getElementById('editModal').style.display === 'flex') {
                 closeEditModal();
             }
         });
         
-        // Load clients on page load
+        // Initialize
         document.addEventListener('DOMContentLoaded', () => {
-            // Check if Firebase is loaded
             if (typeof firebase === 'undefined') {
                 showAlert('❌ Firebase not loaded. Please check your internet connection and refresh.', 'error');
                 return;
             }
             
-            // Check if config is loaded
             if (typeof DLM_CONFIG === 'undefined') {
                 showAlert('❌ Configuration not loaded. Please check config.js file.', 'error');
                 return;
             }
             
-            // Load clients
             loadClients();
-            
             console.log('✅ Admin dashboard initialized successfully');
-            console.log('🌐 Portal URL configured as:', PORTAL_BASE_URL);
         });
     </script>
 </body>
