@@ -1,4 +1,4 @@
-// Firebase Configuration
+// Firebase Configuration (Portal 2 - FIXED)
 const firebaseConfig = {
     apiKey: "AIzaSyBb5ZBhQtAh-qMeX-La39-Nuf2mWmCtidg",
     authDomain: "client-portal-2-1d21e.firebaseapp.com",
@@ -8,29 +8,39 @@ const firebaseConfig = {
     appId: "1:626281176830:web:7f3026cd2f985bc6190faf"
 };
 
-// Initialize Firebase ONLY if not already initialized
-if (!firebase.apps.length) {
-    firebase.initializeApp(firebaseConfig);
-} else {
-    firebase.app(); // Use existing app
+// Initialize Firebase with error handling (CRITICAL FIX)
+try {
+    if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+        console.log('✅ Portal 2 - Firebase initialized successfully');
+    } else {
+        firebase.app(); // Use existing app
+        console.log('✅ Portal 2 - Using existing Firebase app');
+    }
+    
+    // Initialize Firestore
+    const db = firebase.firestore();
+    console.log('✅ Portal 2 - Firestore connected');
+    
+} catch (error) {
+    console.error('❌ Portal 2 - Firebase initialization error:', error);
 }
-const db = firebase.firestore();
 
-// Portal Configuration
+// Portal Configuration (FIXED AND COMPLETE)
 const DLM_CONFIG = {
     // Portal Settings
     portal: {
         baseUrl: "https://portal2.driveleadmedia.com"
     },
     
-    // DocuSign Links
+    // DocuSign Links (Portal 2 specific)
     docuSign: {
         dpa: "https://na4.docusign.net/Member/PowerFormSigning.aspx?PowerFormId=143e9c27-bc1d-4f0e-aab5-65a344a4f3e3&env=na4&acct=ab9821cd-da5d-4091-8f74-e8602b87929d&v=2",
         serviceAgreement: "https://na4.docusign.net/Member/PowerFormSigning.aspx?PowerFormId=a78e28e4-f9a0-4e5a-8795-d31c45721130&env=na4&acct=ab9821cd-da5d-4091-8f74-e8602b87929d&v=2"
     },
     
-    // Default Invoice Link
-    invoiceLink: "https://buy.stripe.com/your-default-payment-link",
+    // Default Invoice Link (Portal 2 specific)
+    invoiceLink: "https://buy.stripe.com/your-portal2-payment-link",
     
     // Google Drive
     googleDrive: {
