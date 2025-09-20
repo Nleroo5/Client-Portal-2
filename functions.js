@@ -15,13 +15,21 @@
         }
     };
 
-    // Load state from Firebase - CRITICAL FIREBASE FUNCTION (FIXED)
+    // Load state from Firebase - THIS IS THE CRITICAL FIREBASE FUNCTION
     async function loadState() {
         const urlParams = new URLSearchParams(window.location.search);
         const clientId = urlParams.get('c');
         
+        // Hide loading screen function
+        const hideLoading = () => {
+            const loadingScreen = document.getElementById('loadingScreen');
+            if (loadingScreen) {
+                loadingScreen.style.display = 'none';
+            }
+        };
+        
         if (!clientId) {
-            showErrorPage('Invalid Access', 'Please use the link provided by Drive Lead Media.');
+            document.body.innerHTML = '<div style="text-align:center; padding:50px; color:#012E40; background: linear-gradient(135deg, #012E40 0%, #05908C 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center;"><div style="background: #EEF4D9; padding: 40px; border-radius: 15px; max-width: 500px;"><h1 style="font-family: Young Serif, serif; margin-bottom: 20px;">Invalid Access</h1><p style="font-size: 1.1rem;">Please use the link provided by Drive Lead Media.</p><p style="margin-top: 20px; color: #05908C;">Contact: Nicolas@driveleadmedia.com</p></div></div>';
             return;
         }
         
@@ -29,14 +37,14 @@
             const doc = await db.collection('clients').doc(clientId).get();
             
             if (!doc.exists) {
-                showErrorPage('Portal Not Found', 'Please contact Drive Lead Media for assistance.');
+                document.body.innerHTML = '<div style="text-align:center; padding:50px; color:#012E40; background: linear-gradient(135deg, #012E40 0%, #05908C 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center;"><div style="background: #EEF4D9; padding: 40px; border-radius: 15px; max-width: 500px;"><h1 style="font-family: Young Serif, serif; margin-bottom: 20px;">Portal Not Found</h1><p style="font-size: 1.1rem;">Please contact Drive Lead Media for assistance.</p><p style="margin-top: 20px; color: #05908C;">Contact: Nicolas@driveleadmedia.com</p></div></div>';
                 return;
             }
             
             const data = doc.data();
             
             if (!data.active) {
-                showErrorPage('Portal Inactive', 'This portal is currently inactive. Please contact Drive Lead Media.');
+                document.body.innerHTML = '<div style="text-align:center; padding:50px; color:#012E40; background: linear-gradient(135deg, #012E40 0%, #05908C 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center;"><div style="background: #EEF4D9; padding: 40px; border-radius: 15px; max-width: 500px;"><h1 style="font-family: Young Serif, serif; margin-bottom: 20px;">Portal Inactive</h1><p style="font-size: 1.1rem;">This portal is currently inactive. Please contact Drive Lead Media.</p><p style="margin-top: 20px; color: #05908C;">Contact: Nicolas@driveleadmedia.com</p></div></div>';
                 return;
             }
             
@@ -48,7 +56,7 @@
                 }
             }
             
-            // Load progress from Firebase (FIXED)
+            // Load progress from Firebase
             portalState['1'] = data.step1Complete || false;
             portalState['2'] = data.step2Complete || false;
             portalState['3'] = data.step3Complete || false;
@@ -88,36 +96,21 @@
                 updateCreativeGallery(data.creativeLink);
             }
             
-            // Store client ID for saving (CRITICAL)
+            // Store client ID for saving
             window.currentClientId = clientId;
             
-            console.log('✅ Portal 2 - Client data loaded successfully:', data.clientName);
+            // Hide loading screen after successful load
+            hideLoading();
             
         } catch (error) {
-            console.error('❌ Portal 2 - Error loading from Firebase:', error);
-            showErrorPage('Loading Error', 'Please refresh the page or contact support.');
+            console.error('Error loading:', error);
+            document.body.innerHTML = '<div style="text-align:center; padding:50px; color:#012E40; background: linear-gradient(135deg, #012E40 0%, #05908C 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center;"><div style="background: #EEF4D9; padding: 40px; border-radius: 15px; max-width: 500px;"><h1 style="font-family: Young Serif, serif; margin-bottom: 20px;">Loading Error</h1><p style="font-size: 1.1rem;">Please refresh the page or contact support.</p><p style="margin-top: 20px; color: #05908C;">Contact: Nicolas@driveleadmedia.com</p></div></div>';
         }
     }
 
-    // Show error page helper (FIXED)
-    function showErrorPage(title, message) {
-        document.body.innerHTML = `
-            <div style="text-align:center; padding:50px; color:#012E40; background: linear-gradient(135deg, #012E40 0%, #05908C 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center;">
-                <div style="background: #EEF4D9; padding: 40px; border-radius: 15px; max-width: 500px;">
-                    <h1 style="font-family: Young Serif, serif; margin-bottom: 20px;">${title}</h1>
-                    <p style="font-size: 1.1rem;">${message}</p>
-                    <p style="margin-top: 20px; color: #05908C;">Contact: Nicolas@driveleadmedia.com</p>
-                </div>
-            </div>
-        `;
-    }
-
-    // Save state to Firebase (FIXED)
+    // Save state to Firebase - THIS SAVES TO FIREBASE INSTEAD OF LOCALSTORAGE
     async function saveState() {
-        if (!window.currentClientId) {
-            console.error('❌ Portal 2 - No client ID available for saving');
-            return;
-        }
+        if (!window.currentClientId) return;
         
         try {
             await db.collection('clients').doc(window.currentClientId).update({
@@ -128,13 +121,12 @@
                 step5Complete: portalState['5'],
                 lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
             });
-            console.log('✅ Portal 2 - Progress saved to Firebase');
         } catch (error) {
-            console.error('❌ Portal 2 - Error saving to Firebase:', error);
+            console.error('Error saving:', error);
         }
     }
 
-    // Update Progress Bar (FIXED)
+    // Update Progress Bar
     function updateProgressBar() {
         const completedSteps = Object.keys(portalState)
             .filter(key => !isNaN(key) && portalState[key]).length;
@@ -152,7 +144,7 @@
         return { completedSteps, percentage };
     }
 
-    // Update Floating Sidebar (FIXED)
+    // Update Floating Sidebar
     function updateFloatingSidebar() {
         const { completedSteps, percentage } = updateProgressBar();
         
@@ -194,7 +186,7 @@
         }
     }
 
-    // Update Step States (CRITICAL STEP PROGRESSION LOGIC - FIXED)
+    // Update Step States
     function updateStepStates() {
         for (let i = 1; i <= 5; i++) {
             const step = document.getElementById(`step${i}`);
@@ -208,18 +200,15 @@
                 const btn = step.querySelector('.btn-complete');
                 if (btn) {
                     btn.textContent = isCompleted ? `✓ Step ${i} Completed` : `Mark Step ${i} Complete`;
-                    if (isCompleted) {
-                        btn.setAttribute('disabled', 'true');
-                    } else {
-                        btn.removeAttribute('disabled');
-                    }
+                    if (isCompleted) btn.setAttribute('disabled', 'true');
+                    else btn.removeAttribute('disabled');
                 }
             }
         }
         updateFloatingSidebar();
     }
 
-    // Mark Step Complete (CRITICAL FUNCTION - FIXED WITH ANIMATIONS)
+    // Mark Step Complete - SAVES TO FIREBASE
     function markStepComplete(stepNum) {
         portalState[stepNum.toString()] = true;
         saveState(); // This now saves to Firebase
@@ -247,7 +236,7 @@
             updateStepStates();
         }
         
-        // Check if all complete for success message
+        // Check if all complete
         const allComplete = [1,2,3,4,5].every(n => portalState[n.toString()]);
         if (allComplete) {
             const successMsg = document.getElementById('successMessage');
@@ -260,7 +249,7 @@
         }
     }
 
-    // Update Creative Gallery (FIXED)
+    // Update Creative Gallery
     function updateCreativeGallery(link) {
         const gallery = document.getElementById('galleryPlaceholder');
         if (gallery) {
@@ -284,7 +273,7 @@
         }
     }
 
-    // Step 4 Functions (FIXED EMAIL INTEGRATION)
+    // Email Admin Details
     function emailAdminDetails() {
         const adminName = document.getElementById('adminName').value;
         const adminEmail = document.getElementById('adminEmail').value;
@@ -309,6 +298,7 @@
         window.open(`mailto:${DLM_CONFIG.support.opsEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`);
     }
 
+    // Email Access Details
     function emailAccessDetails() {
         const websiteUrl = document.getElementById('websiteUrl').value;
         const loginUrl = document.getElementById('loginUrl').value;
@@ -335,7 +325,7 @@
         window.open(`mailto:${DLM_CONFIG.support.opsEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`);
     }
 
-    // Step 5 Functions (FIXED)
+    // Approve Creatives
     function approveCreatives() {
         if (confirm('Approve creatives for launch?')) {
             markStepComplete(5);
@@ -343,6 +333,7 @@
         }
     }
 
+    // Request Revisions
     function requestRevisions() {
         const form = document.getElementById('revisionForm');
         if (form) {
@@ -350,6 +341,7 @@
         }
     }
 
+    // Submit Revisions
     function submitRevisions() {
         const notes = document.getElementById('revisionNotes').value;
         if (!notes) {
@@ -360,27 +352,92 @@
         window.open(`mailto:${DLM_CONFIG.support.opsEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(notes)}`);
     }
 
-    // Initialize on DOM ready (CRITICAL INITIALIZATION - FIXED)
+    // Admin Panel Functions
+    function openAdminPanel() {
+        document.getElementById('adminPanel').style.display = 'block';
+    }
+
+    function closeAdminPanel() {
+        document.getElementById('adminPanel').style.display = 'none';
+        document.getElementById('adminPassword').value = '';
+        document.getElementById('adminContent').style.display = 'none';
+    }
+
+    function checkAdminPassword() {
+        const password = document.getElementById('adminPassword').value;
+        if (password === DLM_CONFIG.admin.password) {
+            document.getElementById('adminContent').style.display = 'block';
+        } else {
+            alert('Incorrect password');
+        }
+    }
+
+    function generateClientId() {
+        return 'client2_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+    }
+
+    async function createNewClient() {
+        const clientName = document.getElementById('newClientName').value;
+        const clientEmail = document.getElementById('newClientEmail').value;
+        
+        if (!clientName.trim()) {
+            alert('Please enter a client name');
+            return;
+        }
+        
+        const clientId = generateClientId();
+        const clientData = {
+            clientId: clientId,
+            clientName: clientName.trim(),
+            clientEmail: clientEmail || null,
+            active: true,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+            lastUpdated: firebase.firestore.FieldValue.serverTimestamp(),
+            
+            // Progress tracking
+            step1Complete: false,
+            step2Complete: false,
+            step3Complete: false,
+            step4Complete: false,
+            step5Complete: false,
+            
+            // Links
+            dpaLink: null,
+            serviceAgreementLink: null,
+            googleDriveLink: null,
+            invoiceLink: null,
+            creativeLink: null
+        };
+        
+        try {
+            await db.collection('clients').doc(clientId).set(clientData);
+            const portalLink = `https://portal2.driveleadmedia.com?c=${clientId}`;
+            document.getElementById('adminResult').innerHTML = `
+                <div style="background: rgba(34, 197, 94, 0.1); color: #22c55e; padding: 15px; border-radius: 8px; border: 1px solid #22c55e;">
+                    <h4>✅ Client Created Successfully!</h4>
+                    <p><strong>Portal Link:</strong></p>
+                    <input type="text" value="${portalLink}" readonly style="width: 100%; padding: 8px; margin: 10px 0; border: 1px solid #22c55e; border-radius: 4px;">
+                    <button onclick="navigator.clipboard.writeText('${portalLink}')" style="background: #22c55e; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer;">Copy Link</button>
+                </div>
+            `;
+            document.getElementById('adminResult').style.display = 'block';
+            document.getElementById('newClientName').value = '';
+            document.getElementById('newClientEmail').value = '';
+        } catch (error) {
+            console.error('Error creating client:', error);
+            document.getElementById('adminResult').innerHTML = `
+                <div style="background: rgba(255, 107, 107, 0.1); color: #ff6b6b; padding: 15px; border-radius: 8px; border: 1px solid #ff6b6b;">
+                    <h4>❌ Error Creating Client</h4>
+                    <p>Please try again or check the console for details.</p>
+                </div>
+            `;
+            document.getElementById('adminResult').style.display = 'block';
+        }
+    }
+
+    // Initialize on DOM ready - USES FIREBASE LOADING
     document.addEventListener('DOMContentLoaded', async function() {
-        console.log('🚀 Portal 2 - Starting initialization...');
-        
-        // Check if Firebase and config are loaded
-        if (typeof firebase === 'undefined') {
-            console.error('❌ Portal 2 - Firebase not loaded');
-            showErrorPage('System Error', 'Firebase not loaded. Please refresh the page.');
-            return;
-        }
-        
-        if (typeof DLM_CONFIG === 'undefined') {
-            console.error('❌ Portal 2 - Configuration not loaded');
-            showErrorPage('System Error', 'Configuration not loaded. Please refresh the page.');
-            return;
-        }
-        
-        console.log('✅ Portal 2 - Firebase and config loaded');
-        
-        // Load state from Firebase
-        await loadState();
+        await loadState(); // This loads from Firebase
         updateStepStates();
         
         // Set default DocuSign links if no custom links
@@ -396,7 +453,7 @@
             dpaBtn.href = DLM_CONFIG.docuSign.dpa;
         }
         if (invoiceBtn && !portalState.invoiceLink) {
-            invoiceBtn.href = DLM_CONFIG.invoiceLink;
+            invoiceBtn.href = DLM_CONFIG.stripeLinks.invoiceLink;
         }
         if (uploadBtn && !portalState.googleDriveLink) {
             uploadBtn.href = DLM_CONFIG.googleDrive.defaultUploadLink;
@@ -418,7 +475,7 @@
             });
         });
         
-        // Platform selection handlers for Step 4 (CRITICAL FIX)
+        // Platform selection handlers for Step 4
         ['websitePlatform', 'sitePlatform'].forEach(selectId => {
             const selectElement = document.getElementById(selectId);
             const otherInput = document.getElementById(selectId + 'Other');
@@ -437,14 +494,18 @@
             }
         });
         
-        console.log('✅ Portal 2 - Initialized successfully with Firebase');
+        console.log('✓ Portal 2 initialized successfully with Firebase');
     });
 
-    // Expose functions globally (CLEAN CLIENT-ONLY FUNCTIONS)
+    // Expose functions globally
     window.markStepComplete = markStepComplete;
     window.emailAdminDetails = emailAdminDetails;
     window.emailAccessDetails = emailAccessDetails;
     window.approveCreatives = approveCreatives;
     window.requestRevisions = requestRevisions;
     window.submitRevisions = submitRevisions;
+    window.openAdminPanel = openAdminPanel;
+    window.closeAdminPanel = closeAdminPanel;
+    window.checkAdminPassword = checkAdminPassword;
+    window.createNewClient = createNewClient;
 })();
