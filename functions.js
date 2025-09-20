@@ -430,7 +430,7 @@
         console.log('✅ Portal initialized successfully with Firebase');
     });
 
-    // Expose functions globally
+    // Expose functions globally - CLEAN CLIENT-ONLY FUNCTIONS
     window.markStepComplete = markStepComplete;
     window.emailAdminDetails = emailAdminDetails;
     window.emailAccessDetails = emailAccessDetails;
