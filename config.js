@@ -1,14 +1,14 @@
-// Firebase Configuration - REPLACE WITH YOUR ACTUAL FIREBASE CONFIG
+// Firebase Configuration - YOUR ACTUAL PROJECT
 const firebaseConfig = {
-    apiKey: "YOUR_API_KEY_HERE",
-    authDomain: "your-project-id.firebaseapp.com",
-    projectId: "your-project-id",
-    storageBucket: "your-project-id.firebasestorage.app",
-    messagingSenderId: "123456789000",
-    appId: "1:123456789000:web:your-app-id-here"
+    apiKey: "AIzaSyBb5ZBhQtAh-qMeX-La39-Nuf2mWmCtidg",
+    authDomain: "client-portal-2-1d21e.firebaseapp.com",
+    projectId: "client-portal-2-1d21e",
+    storageBucket: "client-portal-2-1d21e.firebasestorage.app",
+    messagingSenderId: "626281176830",
+    appId: "1:626281176830:web:7f3026cd2f985bc6190faf"
 };
 
-// Initialize Firebase
+// Initialize Firebase (using compat SDK that your code expects)
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
@@ -21,7 +21,7 @@ const DLM_CONFIG = {
     },
     
     // Default Invoice Link (will be used if no custom link is set via admin)
-    invoiceLink: "https://stripe-first-invoice-payment-link",
+    invoiceLink: "https://buy.stripe.com/your-default-payment-link",
     
     // Default Google Drive Link (will be used if no custom link is set via admin)
     googleDrive: {
@@ -36,11 +36,11 @@ const DLM_CONFIG = {
     
     // Admin Panel Settings
     admin: {
-        password: "dlm2024" // Change this to your preferred admin password
+        password: "dlm2024admin" // CHANGE THIS TO A SECURE PASSWORD
     },
     
-    // Portal Settings
+    // Portal Settings - UPDATED FOR PORTAL2
     portal: {
-        baseUrl: "https://your-portal-domain.com" // Change to your actual domain
+        baseUrl: "https://portal2.driveleadmedia.com"
     }
 };
