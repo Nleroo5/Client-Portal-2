@@ -1109,6 +1109,28 @@
             }
         }
 
+        // Update Creative Gallery
+        function updateCreativeGallery(link) {
+            const gallery = document.getElementById('galleryPlaceholder');
+            if (link) {
+                gallery.innerHTML = `
+                    <p style="color: #012E40; margin-bottom: 15px; font-weight: 600;">
+                        🎨 Your Creative Previews Are Ready!
+                    </p>
+                    <a href="${link}" class="btn" target="_blank" rel="noopener">
+                        View Creative Previews
+                    </a>
+                `;
+            } else {
+                gallery.innerHTML = `
+                    <p>Creative previews will be shared via secure link</p>
+                    <p style="font-size: 0.9rem; color: #85C7B3; margin-top: 10px;">
+                        Links will be provided once creatives are ready for review
+                    </p>
+                `;
+            }
+        }
+
         // Initialize on DOM ready
         document.addEventListener('DOMContentLoaded', async function() {
             // Check if Firebase and config are loaded
@@ -1125,11 +1147,21 @@
             await loadState();
             updateStepStates();
             
-            // Set DocuSign links from config
-            document.getElementById('serviceAgreementBtn').href = DLM_CONFIG.docuSign.serviceAgreement;
-            document.getElementById('dpaBtn').href = DLM_CONFIG.docuSign.dpa;
-            document.getElementById('invoiceBtn').href = DLM_CONFIG.invoiceLink;
-            document.getElementById('uploadBtn').href = DLM_CONFIG.googleDrive.defaultUploadLink;
+            // Set DocuSign links from config or custom links
+            const serviceAgreementLink = (window.clientCustomLinks?.serviceAgreementLink) || DLM_CONFIG.docuSign.serviceAgreement;
+            const dpaLink = (window.clientCustomLinks?.dpaLink) || DLM_CONFIG.docuSign.dpa;
+            const invoiceLink = (window.clientCustomLinks?.invoiceLink) || DLM_CONFIG.invoiceLink;
+            const uploadLink = (window.clientCustomLinks?.googleDriveLink) || DLM_CONFIG.googleDrive.defaultUploadLink;
+            
+            document.getElementById('serviceAgreementBtn').href = serviceAgreementLink;
+            document.getElementById('dpaBtn').href = dpaLink;
+            document.getElementById('invoiceBtn').href = invoiceLink;
+            document.getElementById('uploadBtn').href = uploadLink;
+            
+            // Update creative gallery if custom link exists
+            if (window.clientCustomLinks?.creativeLink) {
+                updateCreativeGallery(window.clientCustomLinks.creativeLink);
+            }
             
             // Set contact info
             document.getElementById('contactEmail').textContent = DLM_CONFIG.support.opsEmail;
