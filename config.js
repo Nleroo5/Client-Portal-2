@@ -8,8 +8,12 @@ const firebaseConfig = {
     appId: "1:626281176830:web:7f3026cd2f985bc6190faf"
 };
 
-// Initialize Firebase
-firebase.initializeApp(firebaseConfig);
+// Initialize Firebase ONLY if not already initialized
+if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+} else {
+    firebase.app(); // Use existing app
+}
 const db = firebase.firestore();
 
 // Portal Configuration
