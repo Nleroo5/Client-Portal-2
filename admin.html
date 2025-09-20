@@ -563,295 +563,12 @@
     <script src="config.js"></script>
     
     <script>
-        // PERFECT ADMIN DASHBOARD SCRIPT
-        const PORTAL_BASE_URL = DLM_CONFIG.portal.baseUrl;
-        let currentEditingClient = null;
-        
-        // Show alert message
-        function showAlert(message, type = 'success') {
-            const alertDiv = document.getElementById('alertMessage');
-            alertDiv.className = `alert alert-${type}`;
-            alertDiv.textContent = message;
-            alertDiv.style.display = 'block';
+        // Wait for config to load before initializing
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Wait a moment for config.js to load
+            await new Promise(resolve => setTimeout(resolve, 100));
             
-            setTimeout(() => {
-                alertDiv.style.display = 'none';
-            }, 5000);
-        }
-        
-        // Generate unique client ID
-        function generateClientId() {
-            return 'client_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-        }
-        
-        // Create new client
-        document.getElementById('createClientForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const clientName = document.getElementById('clientName').value;
-            const clientEmail = document.getElementById('clientEmail').value || null;
-            
-            if (!clientName.trim()) {
-                showAlert('Please enter a client name', 'error');
-                return;
-            }
-            
-            const clientId = generateClientId();
-            const clientData = {
-                clientId: clientId,
-                clientName: clientName.trim(),
-                clientEmail: clientEmail,
-                active: true,
-                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                lastUpdated: firebase.firestore.FieldValue.serverTimestamp(),
-                
-                // Progress tracking
-                step1Complete: false,
-                step2Complete: false,
-                step3Complete: false,
-                step4Complete: false,
-                step5Complete: false,
-                
-                // Custom links (only save if provided)
-                dpaLink: document.getElementById('dpaLink').value || null,
-                serviceAgreementLink: document.getElementById('serviceAgreementLink').value || null,
-                googleDriveLink: document.getElementById('googleDriveLink').value || null,
-                invoiceLink: document.getElementById('invoiceLink').value || null,
-                creativeLink: document.getElementById('creativeLink').value || null
-            };
-            
-            try {
-                await db.collection('clients').doc(clientId).set(clientData);
-                showAlert(`✅ Client portal created! Portal link: ${PORTAL_BASE_URL}?c=${clientId}`);
-                document.getElementById('createClientForm').reset();
-                loadClients();
-            } catch (error) {
-                console.error('Error creating client:', error);
-                showAlert('❌ Error creating client portal. Please try again.', 'error');
-            }
-        });
-        
-        // Load existing clients
-        async function loadClients() {
-            try {
-                const snapshot = await db.collection('clients').orderBy('createdAt', 'desc').get();
-                const tbody = document.getElementById('clientsTableBody');
-                tbody.innerHTML = '';
-                
-                if (snapshot.empty) {
-                    const row = tbody.insertRow();
-                    row.innerHTML = '<td colspan="5" style="text-align: center; padding: 40px; color: #85C7B3;">No clients created yet. Create your first client above!</td>';
-                    return;
-                }
-                
-                snapshot.forEach(doc => {
-                    const data = doc.data();
-                    const portalLink = `${PORTAL_BASE_URL}?c=${data.clientId}`;
-                    
-                    const row = tbody.insertRow();
-                    row.innerHTML = `
-                        <td>${data.clientName}</td>
-                        <td>
-                            <span class="status-badge status-${data.active ? 'active' : 'inactive'}">
-                                ${data.active ? 'Active' : 'Inactive'}
-                            </span>
-                        </td>
-                        <td>
-                            <div class="progress-mini">
-                                <div class="progress-step ${data.step1Complete ? 'complete' : ''}">1</div>
-                                <div class="progress-step ${data.step2Complete ? 'complete' : ''}">2</div>
-                                <div class="progress-step ${data.step3Complete ? 'complete' : ''}">3</div>
-                                <div class="progress-step ${data.step4Complete ? 'complete' : ''}">4</div>
-                                <div class="progress-step ${data.step5Complete ? 'complete' : ''}">5</div>
-                            </div>
-                        </td>
-                        <td>
-                            <input type="text" value="${portalLink}" id="link-${data.clientId}" readonly style="width: 200px; padding: 4px; margin-right: 5px;">
-                            <button class="copy-btn" onclick="copyLink('${data.clientId}')">Copy</button>
-                        </td>
-                        <td>
-                            <button class="btn btn-success btn-small" onclick="toggleStatus('${data.clientId}', ${!data.active})">
-                                ${data.active ? 'Deactivate' : 'Activate'}
-                            </button>
-                            <button class="btn btn-small" onclick="editClient('${data.clientId}')">Edit</button>
-                        </td>
-                    `;
-                });
-            } catch (error) {
-                console.error('Error loading clients:', error);
-                showAlert('❌ Error loading clients', 'error');
-            }
-        }
-        
-        // Copy portal link
-        function copyLink(clientId) {
-            const input = document.getElementById(`link-${clientId}`);
-            input.select();
-            document.execCommand('copy');
-            showAlert('📋 Portal link copied to clipboard!');
-        }
-        
-        // Toggle client status
-        async function toggleStatus(clientId, activate) {
-            try {
-                await db.collection('clients').doc(clientId).update({
-                    active: activate,
-                    lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
-                });
-                showAlert(`✅ Client ${activate ? 'activated' : 'deactivated'} successfully`);
-                loadClients();
-            } catch (error) {
-                console.error('Error updating status:', error);
-                showAlert('❌ Error updating client status', 'error');
-            }
-        }
-        
-        // Edit client
-        async function editClient(clientId) {
-            try {
-                const doc = await db.collection('clients').doc(clientId).get();
-                if (!doc.exists) {
-                    showAlert('Client not found', 'error');
-                    return;
-                }
-                
-                const data = doc.data();
-                currentEditingClient = clientId;
-                
-                // Populate form
-                document.getElementById('editClientId').value = clientId;
-                document.getElementById('editClientName').value = data.clientName || '';
-                document.getElementById('editClientEmail').value = data.clientEmail || '';
-                document.getElementById('editClientStatus').value = data.active ? 'true' : 'false';
-                
-                // Progress checkboxes
-                document.getElementById('editStep1').checked = data.step1Complete || false;
-                document.getElementById('editStep2').checked = data.step2Complete || false;
-                document.getElementById('editStep3').checked = data.step3Complete || false;
-                document.getElementById('editStep4').checked = data.step4Complete || false;
-                document.getElementById('editStep5').checked = data.step5Complete || false;
-                
-                // Links
-                document.getElementById('editDpaLink').value = data.dpaLink || '';
-                document.getElementById('editServiceAgreementLink').value = data.serviceAgreementLink || '';
-                document.getElementById('editGoogleDriveLink').value = data.googleDriveLink || '';
-                document.getElementById('editInvoiceLink').value = data.invoiceLink || '';
-                document.getElementById('editCreativeLink').value = data.creativeLink || '';
-                
-                // Show modal
-                document.getElementById('editModal').style.display = 'flex';
-                
-            } catch (error) {
-                console.error('Error loading client data:', error);
-                showAlert('Error loading client data', 'error');
-            }
-        }
-        
-        // Close edit modal
-        function closeEditModal() {
-            document.getElementById('editModal').style.display = 'none';
-            currentEditingClient = null;
-        }
-        
-        // Reset all steps
-        function resetAllSteps() {
-            if (confirm('Reset all progress steps for this client? This cannot be undone.')) {
-                document.getElementById('editStep1').checked = false;
-                document.getElementById('editStep2').checked = false;
-                document.getElementById('editStep3').checked = false;
-                document.getElementById('editStep4').checked = false;
-                document.getElementById('editStep5').checked = false;
-            }
-        }
-        
-        // Complete all steps
-        function completeAllSteps() {
-            if (confirm('Mark all steps as complete for this client?')) {
-                document.getElementById('editStep1').checked = true;
-                document.getElementById('editStep2').checked = true;
-                document.getElementById('editStep3').checked = true;
-                document.getElementById('editStep4').checked = true;
-                document.getElementById('editStep5').checked = true;
-            }
-        }
-        
-        // Save client changes
-        document.getElementById('editClientForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            if (!currentEditingClient) return;
-            
-            const updateData = {
-                clientName: document.getElementById('editClientName').value,
-                clientEmail: document.getElementById('editClientEmail').value || null,
-                active: document.getElementById('editClientStatus').value === 'true',
-                lastUpdated: firebase.firestore.FieldValue.serverTimestamp(),
-                
-                // Progress tracking
-                step1Complete: document.getElementById('editStep1').checked,
-                step2Complete: document.getElementById('editStep2').checked,
-                step3Complete: document.getElementById('editStep3').checked,
-                step4Complete: document.getElementById('editStep4').checked,
-                step5Complete: document.getElementById('editStep5').checked,
-                
-                // Links
-                dpaLink: document.getElementById('editDpaLink').value || null,
-                serviceAgreementLink: document.getElementById('editServiceAgreementLink').value || null,
-                googleDriveLink: document.getElementById('editGoogleDriveLink').value || null,
-                invoiceLink: document.getElementById('editInvoiceLink').value || null,
-                creativeLink: document.getElementById('editCreativeLink').value || null
-            };
-            
-            try {
-                await db.collection('clients').doc(currentEditingClient).update(updateData);
-                showAlert('✅ Client updated successfully!');
-                closeEditModal();
-                loadClients();
-            } catch (error) {
-                console.error('Error updating client:', error);
-                showAlert('❌ Error updating client. Please try again.', 'error');
-            }
-        });
-        
-        // Delete client
-        async function deleteClient() {
-            if (!currentEditingClient) return;
-            
-            const clientName = document.getElementById('editClientName').value;
-            const confirmText = `Are you sure you want to PERMANENTLY DELETE the client portal for "${clientName}"?\n\nThis action cannot be undone and will:\n- Delete all client data\n- Break their portal link\n- Remove all progress tracking\n\nType "DELETE" to confirm:`;
-            
-            const userInput = prompt(confirmText);
-            
-            if (userInput === 'DELETE') {
-                try {
-                    await db.collection('clients').doc(currentEditingClient).delete();
-                    showAlert(`✅ Client "${clientName}" deleted successfully`);
-                    closeEditModal();
-                    loadClients();
-                } catch (error) {
-                    console.error('Error deleting client:', error);
-                    showAlert('❌ Error deleting client. Please try again.', 'error');
-                }
-            } else if (userInput !== null) {
-                showAlert('❌ Deletion cancelled - incorrect confirmation text', 'error');
-            }
-        }
-        
-        // Event listeners
-        document.getElementById('editModal').addEventListener('click', (e) => {
-            if (e.target === document.getElementById('editModal')) {
-                closeEditModal();
-            }
-        });
-        
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && document.getElementById('editModal').style.display === 'flex') {
-                closeEditModal();
-            }
-        });
-        
-        // Initialize
-        document.addEventListener('DOMContentLoaded', () => {
+            // Check if Firebase and config are loaded
             if (typeof firebase === 'undefined') {
                 showAlert('❌ Firebase not loaded. Please check your internet connection and refresh.', 'error');
                 return;
@@ -862,9 +579,302 @@
                 return;
             }
             
+            // Initialize admin dashboard
+            initializeAdmin();
+        });
+        
+        function initializeAdmin() {
+            const PORTAL_BASE_URL = DLM_CONFIG.portal.baseUrl;
+            let currentEditingClient = null;
+            
+            // Show alert message
+            function showAlert(message, type = 'success') {
+                const alertDiv = document.getElementById('alertMessage');
+                alertDiv.className = `alert alert-${type}`;
+                alertDiv.textContent = message;
+                alertDiv.style.display = 'block';
+                
+                setTimeout(() => {
+                    alertDiv.style.display = 'none';
+                }, 5000);
+            }
+            
+            // Generate unique client ID
+            function generateClientId() {
+                return 'client_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+            }
+            
+            // Create new client
+            document.getElementById('createClientForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                const clientName = document.getElementById('clientName').value;
+                const clientEmail = document.getElementById('clientEmail').value || null;
+                
+                if (!clientName.trim()) {
+                    showAlert('Please enter a client name', 'error');
+                    return;
+                }
+                
+                const clientId = generateClientId();
+                const clientData = {
+                    clientId: clientId,
+                    clientName: clientName.trim(),
+                    clientEmail: clientEmail,
+                    active: true,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    lastUpdated: firebase.firestore.FieldValue.serverTimestamp(),
+                    
+                    // Progress tracking
+                    step1Complete: false,
+                    step2Complete: false,
+                    step3Complete: false,
+                    step4Complete: false,
+                    step5Complete: false,
+                    
+                    // Custom links (only save if provided)
+                    dpaLink: document.getElementById('dpaLink').value || null,
+                    serviceAgreementLink: document.getElementById('serviceAgreementLink').value || null,
+                    googleDriveLink: document.getElementById('googleDriveLink').value || null,
+                    invoiceLink: document.getElementById('invoiceLink').value || null,
+                    creativeLink: document.getElementById('creativeLink').value || null
+                };
+                
+                try {
+                    await db.collection('clients').doc(clientId).set(clientData);
+                    showAlert(`✅ Client portal created! Portal link: ${PORTAL_BASE_URL}?c=${clientId}`);
+                    document.getElementById('createClientForm').reset();
+                    await loadClients();
+                } catch (error) {
+                    console.error('Error creating client:', error);
+                    showAlert('❌ Error creating client portal. Please try again.', 'error');
+                }
+            });
+            
+            // Load existing clients
+            async function loadClients() {
+                try {
+                    const snapshot = await db.collection('clients').orderBy('createdAt', 'desc').get();
+                    const tbody = document.getElementById('clientsTableBody');
+                    tbody.innerHTML = '';
+                    
+                    if (snapshot.empty) {
+                        const row = tbody.insertRow();
+                        row.innerHTML = '<td colspan="5" style="text-align: center; padding: 40px; color: #85C7B3;">No clients created yet. Create your first client above!</td>';
+                        return;
+                    }
+                    
+                    snapshot.forEach(doc => {
+                        const data = doc.data();
+                        const portalLink = `${PORTAL_BASE_URL}?c=${data.clientId}`;
+                        
+                        const row = tbody.insertRow();
+                        row.innerHTML = `
+                            <td>${data.clientName}</td>
+                            <td>
+                                <span class="status-badge status-${data.active ? 'active' : 'inactive'}">
+                                    ${data.active ? 'Active' : 'Inactive'}
+                                </span>
+                            </td>
+                            <td>
+                                <div class="progress-mini">
+                                    <div class="progress-step ${data.step1Complete ? 'complete' : ''}">1</div>
+                                    <div class="progress-step ${data.step2Complete ? 'complete' : ''}">2</div>
+                                    <div class="progress-step ${data.step3Complete ? 'complete' : ''}">3</div>
+                                    <div class="progress-step ${data.step4Complete ? 'complete' : ''}">4</div>
+                                    <div class="progress-step ${data.step5Complete ? 'complete' : ''}">5</div>
+                                </div>
+                            </td>
+                            <td>
+                                <input type="text" value="${portalLink}" id="link-${data.clientId}" readonly style="width: 200px; padding: 4px; margin-right: 5px;">
+                                <button class="copy-btn" onclick="window.copyLink('${data.clientId}')">Copy</button>
+                            </td>
+                            <td>
+                                <button class="btn btn-success btn-small" onclick="window.toggleStatus('${data.clientId}', ${!data.active})">
+                                    ${data.active ? 'Deactivate' : 'Activate'}
+                                </button>
+                                <button class="btn btn-small" onclick="window.editClient('${data.clientId}')">Edit</button>
+                            </td>
+                        `;
+                    });
+                } catch (error) {
+                    console.error('Error loading clients:', error);
+                    showAlert('❌ Error loading clients', 'error');
+                }
+            }
+            
+            // Copy portal link
+            window.copyLink = function(clientId) {
+                const input = document.getElementById(`link-${clientId}`);
+                input.select();
+                document.execCommand('copy');
+                showAlert('📋 Portal link copied to clipboard!');
+            }
+            
+            // Toggle client status
+            window.toggleStatus = async function(clientId, activate) {
+                try {
+                    await db.collection('clients').doc(clientId).update({
+                        active: activate,
+                        lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                    showAlert(`✅ Client ${activate ? 'activated' : 'deactivated'} successfully`);
+                    await loadClients();
+                } catch (error) {
+                    console.error('Error updating status:', error);
+                    showAlert('❌ Error updating client status', 'error');
+                }
+            }
+            
+            // Edit client
+            window.editClient = async function(clientId) {
+                try {
+                    const doc = await db.collection('clients').doc(clientId).get();
+                    if (!doc.exists) {
+                        showAlert('Client not found', 'error');
+                        return;
+                    }
+                    
+                    const data = doc.data();
+                    currentEditingClient = clientId;
+                    
+                    // Populate form
+                    document.getElementById('editClientId').value = clientId;
+                    document.getElementById('editClientName').value = data.clientName || '';
+                    document.getElementById('editClientEmail').value = data.clientEmail || '';
+                    document.getElementById('editClientStatus').value = data.active ? 'true' : 'false';
+                    
+                    // Progress checkboxes
+                    document.getElementById('editStep1').checked = data.step1Complete || false;
+                    document.getElementById('editStep2').checked = data.step2Complete || false;
+                    document.getElementById('editStep3').checked = data.step3Complete || false;
+                    document.getElementById('editStep4').checked = data.step4Complete || false;
+                    document.getElementById('editStep5').checked = data.step5Complete || false;
+                    
+                    // Links
+                    document.getElementById('editDpaLink').value = data.dpaLink || '';
+                    document.getElementById('editServiceAgreementLink').value = data.serviceAgreementLink || '';
+                    document.getElementById('editGoogleDriveLink').value = data.googleDriveLink || '';
+                    document.getElementById('editInvoiceLink').value = data.invoiceLink || '';
+                    document.getElementById('editCreativeLink').value = data.creativeLink || '';
+                    
+                    // Show modal
+                    document.getElementById('editModal').style.display = 'flex';
+                    
+                } catch (error) {
+                    console.error('Error loading client data:', error);
+                    showAlert('Error loading client data', 'error');
+                }
+            }
+            
+            // Close edit modal
+            window.closeEditModal = function() {
+                document.getElementById('editModal').style.display = 'none';
+                currentEditingClient = null;
+            }
+            
+            // Reset all steps
+            window.resetAllSteps = function() {
+                if (confirm('Reset all progress steps for this client? This cannot be undone.')) {
+                    document.getElementById('editStep1').checked = false;
+                    document.getElementById('editStep2').checked = false;
+                    document.getElementById('editStep3').checked = false;
+                    document.getElementById('editStep4').checked = false;
+                    document.getElementById('editStep5').checked = false;
+                }
+            }
+            
+            // Complete all steps
+            window.completeAllSteps = function() {
+                if (confirm('Mark all steps as complete for this client?')) {
+                    document.getElementById('editStep1').checked = true;
+                    document.getElementById('editStep2').checked = true;
+                    document.getElementById('editStep3').checked = true;
+                    document.getElementById('editStep4').checked = true;
+                    document.getElementById('editStep5').checked = true;
+                }
+            }
+            
+            // Save client changes
+            document.getElementById('editClientForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                if (!currentEditingClient) return;
+                
+                const updateData = {
+                    clientName: document.getElementById('editClientName').value,
+                    clientEmail: document.getElementById('editClientEmail').value || null,
+                    active: document.getElementById('editClientStatus').value === 'true',
+                    lastUpdated: firebase.firestore.FieldValue.serverTimestamp(),
+                    
+                    // Progress tracking
+                    step1Complete: document.getElementById('editStep1').checked,
+                    step2Complete: document.getElementById('editStep2').checked,
+                    step3Complete: document.getElementById('editStep3').checked,
+                    step4Complete: document.getElementById('editStep4').checked,
+                    step5Complete: document.getElementById('editStep5').checked,
+                    
+                    // Links
+                    dpaLink: document.getElementById('editDpaLink').value || null,
+                    serviceAgreementLink: document.getElementById('editServiceAgreementLink').value || null,
+                    googleDriveLink: document.getElementById('editGoogleDriveLink').value || null,
+                    invoiceLink: document.getElementById('editInvoiceLink').value || null,
+                    creativeLink: document.getElementById('editCreativeLink').value || null
+                };
+                
+                try {
+                    await db.collection('clients').doc(currentEditingClient).update(updateData);
+                    showAlert('✅ Client updated successfully!');
+                    window.closeEditModal();
+                    await loadClients();
+                } catch (error) {
+                    console.error('Error updating client:', error);
+                    showAlert('❌ Error updating client. Please try again.', 'error');
+                }
+            });
+            
+            // Delete client
+            window.deleteClient = async function() {
+                if (!currentEditingClient) return;
+                
+                const clientName = document.getElementById('editClientName').value;
+                const confirmText = `Are you sure you want to PERMANENTLY DELETE the client portal for "${clientName}"?\n\nThis action cannot be undone and will:\n- Delete all client data\n- Break their portal link\n- Remove all progress tracking\n\nType "DELETE" to confirm:`;
+                
+                const userInput = prompt(confirmText);
+                
+                if (userInput === 'DELETE') {
+                    try {
+                        await db.collection('clients').doc(currentEditingClient).delete();
+                        showAlert(`✅ Client "${clientName}" deleted successfully`);
+                        window.closeEditModal();
+                        await loadClients();
+                    } catch (error) {
+                        console.error('Error deleting client:', error);
+                        showAlert('❌ Error deleting client. Please try again.', 'error');
+                    }
+                } else if (userInput !== null) {
+                    showAlert('❌ Deletion cancelled - incorrect confirmation text', 'error');
+                }
+            }
+            
+            // Event listeners
+            document.getElementById('editModal').addEventListener('click', (e) => {
+                if (e.target === document.getElementById('editModal')) {
+                    window.closeEditModal();
+                }
+            });
+            
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && document.getElementById('editModal').style.display === 'flex') {
+                    window.closeEditModal();
+                }
+            });
+            
+            // Load clients initially
             loadClients();
             console.log('✅ Admin dashboard initialized successfully');
-        });
+            console.log('🌐 Portal URL configured as:', PORTAL_BASE_URL);
+        }
     </script>
 </body>
 </html>
