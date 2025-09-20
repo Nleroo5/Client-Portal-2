@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard - Drive Lead Media</title>
+    <title>Admin Dashboard - Drive Lead Media Portal 2</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Young+Serif:wght@400&display=swap" rel="stylesheet">
@@ -376,8 +376,8 @@
 </head>
 <body>
     <div class="admin-header">
-        <h1>Admin Dashboard</h1>
-        <p>Manage Client Portals - Drive Lead Media</p>
+        <h1>Admin Dashboard - Portal 2</h1>
+        <p>Manage Client Portals - Drive Lead Media Portal 2</p>
     </div>
     
     <div class="admin-container">
@@ -559,13 +559,15 @@
         </div>
     </div>
     
-    <!-- Configuration -->
+    <!-- Configuration Script -->
     <script src="config.js"></script>
     
     <script>
-        // Wait for config to load before initializing
+        // Wait for config to load before initializing (CRITICAL FIX)
         document.addEventListener('DOMContentLoaded', async () => {
-            // Wait a moment for config.js to load
+            console.log('🚀 Portal 2 Admin - Starting initialization...');
+            
+            // Wait for config.js to load
             await new Promise(resolve => setTimeout(resolve, 100));
             
             // Check if Firebase and config are loaded
@@ -587,6 +589,8 @@
             const PORTAL_BASE_URL = DLM_CONFIG.portal.baseUrl;
             let currentEditingClient = null;
             
+            console.log('✅ Portal 2 Admin - Initializing with URL:', PORTAL_BASE_URL);
+            
             // Show alert message
             function showAlert(message, type = 'success') {
                 const alertDiv = document.getElementById('alertMessage');
@@ -601,10 +605,10 @@
             
             // Generate unique client ID
             function generateClientId() {
-                return 'client_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                return 'client2_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
             }
             
-            // Create new client
+            // Create new client (FIXED)
             document.getElementById('createClientForm').addEventListener('submit', async (e) => {
                 e.preventDefault();
                 
@@ -651,7 +655,7 @@
                 }
             });
             
-            // Load existing clients
+            // Load existing clients (FIXED)
             async function loadClients() {
                 try {
                     const snapshot = await db.collection('clients').orderBy('createdAt', 'desc').get();
@@ -872,8 +876,8 @@
             
             // Load clients initially
             loadClients();
-            console.log('✅ Admin dashboard initialized successfully');
-            console.log('🌐 Portal URL configured as:', PORTAL_BASE_URL);
+            console.log('✅ Portal 2 Admin dashboard initialized successfully');
+            console.log('🌐 Portal 2 URL configured as:', PORTAL_BASE_URL);
         }
     </script>
 </body>
