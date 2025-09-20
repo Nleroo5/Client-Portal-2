@@ -606,12 +606,10 @@
             </div>
             <div class="step-content">
                 <div style="margin-bottom: 20px;">
-                    <a href="https://na4.docusign.net/Member/PowerFormSigning.aspx?PowerFormId=a78e28e4-f9a0-4e5a-8795-d31c45721130&env=na4&acct=ab9821cd-da5d-4091-8f74-e8602b87929d&v=2" 
-                       class="btn" target="_blank" rel="noopener">
+                    <a href="#" class="btn" id="serviceAgreementBtn" target="_blank" rel="noopener">
                         Sign Service Agreement
                     </a>
-                    <a href="https://na4.docusign.net/Member/PowerFormSigning.aspx?PowerFormId=143e9c27-bc1d-4f0e-aab5-65a344a4f3e3&env=na4&acct=ab9821cd-da5d-4091-8f74-e8602b87929d&v=2" 
-                       class="btn" target="_blank" rel="noopener">
+                    <a href="#" class="btn" id="dpaBtn" target="_blank" rel="noopener">
                         Sign DPA
                     </a>
                 </div>
@@ -633,7 +631,7 @@
             <div class="step-content">
                 <p style="color: #012E40; margin-bottom: 20px;">Click the link below to pay your first invoice securely through Stripe.</p>
                 
-                <a href="https://buy.stripe.com/your-default-payment-link" class="btn" target="_blank" rel="noopener">
+                <a href="#" class="btn" id="invoiceBtn" target="_blank" rel="noopener">
                     Pay First Invoice
                 </a>
             </div>
@@ -678,8 +676,7 @@
                 <div style="margin: 30px 0 20px 0; border-top: 2px solid rgba(133, 199, 179, 0.3); padding-top: 25px;">
                     <h4 style="color: #012E40; margin-bottom: 15px;">📁 Brand Kit Upload</h4>
                     <p style="color: #012E40; margin-bottom: 15px;">Upload your logos, brand guidelines, fonts, and any existing creative assets so we can create ads that perfectly match your brand.</p>
-                    <a href="https://drive.google.com/drive/folders/1jds7K6SdV6G_SwTyZZjxqjuftqIHiaPY?usp=sharing" 
-                       class="btn btn-outline" target="_blank" rel="noopener">
+                    <a href="#" class="btn btn-outline" id="uploadBtn" target="_blank" rel="noopener">
                         Upload Brand Assets
                     </a>
                 </div>
@@ -804,22 +801,16 @@
             <div class="footer-links">
                 <a onclick="resetProgress(); return false;">Reset progress</a>
                 <span>•</span>
-                <span>Nicolas@driveleadmedia.com</span>
+                <span id="contactEmail">Nicolas@driveleadmedia.com</span>
                 <span>•</span>
-                <span>(678) 650-6411</span>
+                <span id="contactPhone">(678) 650-6411</span>
             </div>
         </div>
     </div>
 
+    <!-- Configuration and Firebase -->
+    <script src="config.js"></script>
     <script>
-        // Configuration - All settings in one place
-        const DLM_CONFIG = {
-            support: {
-                opsEmail: "Nicolas@driveleadmedia.com",
-                opsPhone: "(678) 650-6411"
-            }
-        };
-
         // Portal State
         let portalState = {
             "1": false,
@@ -831,8 +822,66 @@
 
         const STORAGE_KEY = 'dlm_portal_v1';
 
-        // Load state from localStorage
-        function loadState() {
+        // FIXED: Load state from Firebase with client ID support
+        async function loadState() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const clientId = urlParams.get('c');
+            
+            if (clientId) {
+                try {
+                    // Load client data from Firebase
+                    const doc = await db.collection('clients').doc(clientId).get();
+                    
+                    if (doc.exists) {
+                        const data = doc.data();
+                        
+                        // Check if client is active
+                        if (!data.active) {
+                            document.body.innerHTML = `
+                                <div style="text-align:center; padding:50px; color:#012E40; background: linear-gradient(135deg, #012E40 0%, #05908C 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center;">
+                                    <div style="background: #EEF4D9; padding: 40px; border-radius: 15px; max-width: 500px;">
+                                        <h1 style="font-family: Young Serif, serif; margin-bottom: 20px;">Portal Inactive</h1>
+                                        <p style="font-size: 1.1rem;">This portal is currently inactive. Please contact Drive Lead Media.</p>
+                                        <p style="margin-top: 20px; color: #05908C;">Contact: Nicolas@driveleadmedia.com</p>
+                                    </div>
+                                </div>
+                            `;
+                            return;
+                        }
+                        
+                        // Load client name
+                        if (data.clientName) {
+                            document.querySelector('.hero h1').textContent = `Welcome, ${data.clientName}!`;
+                        }
+                        
+                        // Load progress from Firebase
+                        portalState['1'] = data.step1Complete || false;
+                        portalState['2'] = data.step2Complete || false;
+                        portalState['3'] = data.step3Complete || false;
+                        portalState['4'] = data.step4Complete || false;
+                        portalState['5'] = data.step5Complete || false;
+                        
+                        // Store client ID for saving
+                        window.currentClientId = clientId;
+                        
+                        console.log('✅ Loaded client data from Firebase:', data.clientName);
+                    } else {
+                        console.warn('⚠️ Client not found in Firebase, using localStorage');
+                        loadStateFromLocalStorage();
+                    }
+                } catch (error) {
+                    console.error('❌ Error loading from Firebase:', error);
+                    loadStateFromLocalStorage();
+                }
+            } else {
+                // No client ID - fallback to localStorage for testing
+                console.log('ℹ️ No client ID provided, using localStorage');
+                loadStateFromLocalStorage();
+            }
+        }
+
+        // Fallback to localStorage
+        function loadStateFromLocalStorage() {
             try {
                 const saved = localStorage.getItem(STORAGE_KEY);
                 if (saved) {
@@ -844,12 +893,32 @@
             }
         }
 
-        // Save state to localStorage
+        // FIXED: Save state to Firebase when client ID exists
         function saveState() {
-            try {
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(portalState));
-            } catch (e) {
-                console.warn('Could not save state to localStorage:', e);
+            if (window.currentClientId) {
+                // Save to Firebase
+                db.collection('clients').doc(window.currentClientId).update({
+                    step1Complete: portalState['1'],
+                    step2Complete: portalState['2'],
+                    step3Complete: portalState['3'],
+                    step4Complete: portalState['4'],
+                    step5Complete: portalState['5'],
+                    lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
+                }).then(() => {
+                    console.log('✅ Progress saved to Firebase');
+                }).catch(error => {
+                    console.error('❌ Error saving to Firebase:', error);
+                    // Fallback to localStorage
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify(portalState));
+                });
+            } else {
+                // Fallback to localStorage for testing
+                try {
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify(portalState));
+                    console.log('💾 Progress saved to localStorage (testing mode)');
+                } catch (e) {
+                    console.warn('Could not save state to localStorage:', e);
+                }
             }
         }
 
@@ -938,7 +1007,7 @@
         // Mark Step Complete
         function markStepComplete(stepNum) {
             portalState[stepNum.toString()] = true;
-            saveState();
+            saveState(); // This now saves to Firebase when client ID exists
             updateStepStates();
             
             // Check if all complete
@@ -1013,20 +1082,58 @@
                 return;
             }
             const subject = 'Creative Revision Request';
-            window.open(`mailto:${DLM_CONFIG.support.opsEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(notes)}`);
+            window.open(`mailto:${DLM_CONFIG.support.opsEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`);
         }
 
         function resetProgress() {
             if (confirm('Are you sure you want to reset all progress?')) {
-                localStorage.removeItem(STORAGE_KEY);
-                location.reload();
+                if (window.currentClientId) {
+                    // Reset Firebase data
+                    db.collection('clients').doc(window.currentClientId).update({
+                        step1Complete: false,
+                        step2Complete: false,
+                        step3Complete: false,
+                        step4Complete: false,
+                        step5Complete: false,
+                        lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
+                    }).then(() => {
+                        location.reload();
+                    }).catch(() => {
+                        localStorage.removeItem(STORAGE_KEY);
+                        location.reload();
+                    });
+                } else {
+                    localStorage.removeItem(STORAGE_KEY);
+                    location.reload();
+                }
             }
         }
 
         // Initialize on DOM ready
-        document.addEventListener('DOMContentLoaded', function() {
-            loadState();
+        document.addEventListener('DOMContentLoaded', async function() {
+            // Check if Firebase and config are loaded
+            if (typeof firebase === 'undefined') {
+                console.error('❌ Firebase not loaded');
+                return;
+            }
+            if (typeof DLM_CONFIG === 'undefined') {
+                console.error('❌ Configuration not loaded');
+                return;
+            }
+            
+            // Load state (Firebase or localStorage)
+            await loadState();
             updateStepStates();
+            
+            // Set DocuSign links from config
+            document.getElementById('serviceAgreementBtn').href = DLM_CONFIG.docuSign.serviceAgreement;
+            document.getElementById('dpaBtn').href = DLM_CONFIG.docuSign.dpa;
+            document.getElementById('invoiceBtn').href = DLM_CONFIG.invoiceLink;
+            document.getElementById('uploadBtn').href = DLM_CONFIG.googleDrive.defaultUploadLink;
+            
+            // Set contact info
+            document.getElementById('contactEmail').textContent = DLM_CONFIG.support.opsEmail;
+            document.getElementById('contactPhone').textContent = DLM_CONFIG.support.opsPhone;
             
             // Step 4 website access event listeners
             document.querySelectorAll('input[name="websiteAccess"]').forEach(radio => {
@@ -1038,7 +1145,7 @@
                 });
             });
             
-            console.log('✓ Client portal initialized successfully');
+            console.log('✅ Client portal initialized successfully');
         });
     </script>
 </body>
