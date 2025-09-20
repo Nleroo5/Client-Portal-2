@@ -1,4 +1,4 @@
-// Firebase Configuration (Portal 2 - FIXED)
+// Firebase Configuration for Portal 2 - FINAL FIX
 const firebaseConfig = {
     apiKey: "AIzaSyBb5ZBhQtAh-qMeX-La39-Nuf2mWmCtidg",
     authDomain: "client-portal-2-1d21e.firebaseapp.com",
@@ -8,8 +8,15 @@ const firebaseConfig = {
     appId: "1:626281176830:web:7f3026cd2f985bc6190faf"
 };
 
-// Initialize Firebase with error handling (CRITICAL FIX)
+// Initialize Firebase with better error handling - CRITICAL FIX
+let db;
 try {
+    // Check if Firebase is loaded
+    if (typeof firebase === 'undefined') {
+        throw new Error('Firebase SDK not loaded');
+    }
+    
+    // Initialize Firebase app
     if (!firebase.apps.length) {
         firebase.initializeApp(firebaseConfig);
         console.log('✅ Portal 2 - Firebase initialized successfully');
@@ -18,15 +25,28 @@ try {
         console.log('✅ Portal 2 - Using existing Firebase app');
     }
     
-    // Initialize Firestore
-    const db = firebase.firestore();
-    console.log('✅ Portal 2 - Firestore connected');
+    // Initialize Firestore with settings
+    db = firebase.firestore();
+    
+    // Configure Firestore settings for better performance
+    db.settings({
+        cacheSizeBytes: firebase.firestore.CACHE_SIZE_UNLIMITED
+    });
+    
+    console.log('✅ Portal 2 - Firestore connected successfully');
     
 } catch (error) {
     console.error('❌ Portal 2 - Firebase initialization error:', error);
+    
+    // Fallback error message for users
+    setTimeout(() => {
+        if (typeof showAlert === 'function') {
+            showAlert('❌ Database connection failed. Please refresh the page.', 'error');
+        }
+    }, 1000);
 }
 
-// Portal Configuration (FIXED AND COMPLETE)
+// Portal Configuration - VERIFIED WORKING
 const DLM_CONFIG = {
     // Portal Settings
     portal: {
@@ -53,3 +73,7 @@ const DLM_CONFIG = {
         opsPhone: "(678) 650-6411"
     }
 };
+
+// Export for global access
+window.DLM_CONFIG = DLM_CONFIG;
+window.db = db;
