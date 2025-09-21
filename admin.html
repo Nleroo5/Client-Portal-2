@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard - Drive Lead Media</title>
+    <title>Admin Dashboard - Drive Lead Media Portal 2</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Young+Serif:wght@400&display=swap" rel="stylesheet">
@@ -201,19 +201,6 @@
             color: white;
         }
         
-        .portal-link {
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            color: #05908C;
-            text-decoration: none;
-            font-weight: 600;
-        }
-        
-        .portal-link:hover {
-            text-decoration: underline;
-        }
-        
         .copy-btn {
             padding: 4px 8px;
             background: #85C7B3;
@@ -385,8 +372,8 @@
 </head>
 <body>
     <div class="admin-header">
-        <h1>Admin Dashboard</h1>
-        <p>Manage Client Portals - Drive Lead Media</p>
+        <h1>Portal 2 Admin Dashboard</h1>
+        <p>Manage Client Portals - Drive Lead Media Portal 2</p>
     </div>
     
     <div class="admin-container">
@@ -437,52 +424,6 @@
                     <div class="form-group">
                         <label for="creativeLink">Creative Preview Link</label>
                         <input type="url" id="creativeLink" placeholder="Add later when creatives are ready">
-                    </div>
-                </div> Service Agreement</label>
-                            <input type="url" id="service6Link" placeholder="Leave blank for default">
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label for="service12Link">Custom 12-Month Service Agreement</label>
-                        <input type="url" id="service12Link" placeholder="Leave blank for default">
-                    </div>
-                </div>
-                
-                <div class="link-section">
-                    <h3>Stripe Payment Links (Optional)</h3>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="stripe6Monthly">6-Month Monthly Payment</label>
-                            <input type="url" id="stripe6Monthly" placeholder="Leave blank for default">
-                        </div>
-                        <div class="form-group">
-                            <label for="stripe6Upfront">6-Month Upfront Payment</label>
-                            <input type="url" id="stripe6Upfront" placeholder="Leave blank for default">
-                        </div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="stripe12Monthly">12-Month Monthly Payment</label>
-                            <input type="url" id="stripe12Monthly" placeholder="Leave blank for default">
-                        </div>
-                        <div class="form-group">
-                            <label for="stripe12Upfront">12-Month Upfront Payment</label>
-                            <input type="url" id="stripe12Upfront" placeholder="Leave blank for default">
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="link-section">
-                    <h3>Other Links (Optional)</h3>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="googleDriveLink">Google Drive Upload Link</label>
-                            <input type="url" id="googleDriveLink" placeholder="Leave blank for default">
-                        </div>
-                        <div class="form-group">
-                            <label for="creativeLink">Creative Preview Link</label>
-                            <input type="url" id="creativeLink" placeholder="Add later when creatives are ready">
-                        </div>
                     </div>
                 </div>
                 
@@ -619,7 +560,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
     
     <script>
-        // Firebase Configuration
+        // Firebase Configuration - Portal 2 Specific
         const firebaseConfig = {
             apiKey: "AIzaSyBb5ZBhQtAh-qMeX-La39-Nuf2mWmCtidg",
             authDomain: "client-portal-2-1d21e.firebaseapp.com",
@@ -633,7 +574,7 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
         
-        // Your portal URL
+        // Your portal URL - UPDATE THIS TO YOUR ACTUAL PORTAL 2 DOMAIN
         const PORTAL_BASE_URL = 'https://portal2.driveleadmedia.com';
         
         // Current client being edited
