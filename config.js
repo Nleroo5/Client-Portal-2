@@ -1,4 +1,4 @@
-// Firebase Configuration
+// Firebase Configuration - Portal 2
 const firebaseConfig = {
     apiKey: "AIzaSyBb5ZBhQtAh-qMeX-La39-Nuf2mWmCtidg",
     authDomain: "client-portal-2-1d21e.firebaseapp.com",
