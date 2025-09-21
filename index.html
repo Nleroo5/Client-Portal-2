@@ -181,9 +181,46 @@
                 
                 <!-- Brand Kit Upload Section -->
                 <div style="margin: 30px 0 20px 0; border-top: 2px solid rgba(133, 199, 179, 0.3); padding-top: 25px;">
-                    <h4 style="color: #012E40; margin-bottom: 15px;">📁 Brand Kit Upload</h4>
+                    <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 15px; flex-wrap: wrap;">
+                        <h4 style="color: #012E40; margin: 0;">📁 Brand Kit Upload:</h4>
+                        <button class="btn btn-small btn-outline" id="brandKitInfoBtn" style="font-size: 0.8rem; padding: 4px 12px;" onclick="window.toggleBrandKitInfo()">
+                            What is a brand kit?
+                        </button>
+                    </div>
+                    
+                    <!-- Brand Kit Explanation (hidden initially) -->
+                    <div id="brandKitInfo" style="display: none; background: #FBE9D1; padding: 20px; border-radius: 8px; margin: 15px 0; border: 1px solid #F2A922;">
+                        <h5 style="color: #012E40; margin-bottom: 10px;">Your Brand Kit Should Include:</h5>
+                        <div class="brand-kit-grid">
+                            <div>
+                                <h6 style="color: #012E40; margin-bottom: 8px; font-weight: 600;">🎨 Logo Files:</h6>
+                                <ul style="margin-left: 15px; color: #012E40; line-height: 1.5;">
+                                    <li>High-resolution logo PNG (transparent background)</li>
+                                    <li>Logo variations (if available)</li>
+                                </ul>
+                                <p style="color: #012E40; margin-top: 8px; font-size: 0.9rem; font-style: italic;">
+                                    We can work with whatever you have, but the more options you provide, the more creative flexibility we'll have to make your ads stand out
+                                </p>
+                            </div>
+                            <div>
+                                <h6 style="color: #012E40; margin-bottom: 8px; font-weight: 600;">🌈 Color Palette:</h6>
+                                <ul style="margin-left: 15px; color: #012E40; line-height: 1.5;">
+                                    <li>Brand colors (hex codes like #012E40)</li>
+                                    <li>Color palette document or screenshot</li>
+                                    <li>Brand guidelines PDF (if available)</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div style="background: #DFF5F3; padding: 15px; border-radius: 6px; border-left: 3px solid #05908C;">
+                            <p style="color: #012E40; margin: 0; font-size: 0.9rem;">
+                                <strong>💡 Don't have all of these?</strong> No worries! Upload whatever you have. Even just a logo PNG and your main brand colors will help us create ads that match your brand perfectly.
+                            </p>
+                        </div>
+                    </div>
+                    
                     <p style="color: #012E40; margin-bottom: 15px;">Upload your logos, brand guidelines, fonts, and any existing creative assets so we can create ads that perfectly match your brand.</p>
-                    <a href="#" class="btn btn-outline" id="uploadBtn" target="_blank" rel="noopener">
+                    <a href="https://drive.google.com/drive/folders/1jds7K6SdV6G_SwTyZZjxqjuftqIHiaPY?usp=sharing" 
+                       class="btn btn-outline" id="uploadBtn" target="_blank" rel="noopener">
                         Upload Brand Assets
                     </a>
                 </div>
@@ -198,7 +235,7 @@
             <div class="step-header">
                 <div>
                     <h2>Website Access for Tracking</h2>
-                    <div class="step-note">We install GA4 and Meta Pixel. We handle all technical setup - you just provide access.</div>
+                    <div class="step-note">We install GA4 and Meta Pixel (no PHI). We handle all technical setup - you just provide access.</div>
                 </div>
                 <div class="step-number">4</div>
             </div>
@@ -231,7 +268,7 @@
                         <input type="email" id="adminEmail" required>
                     </div>
                     <div class="form-group">
-                        <label for="adminPhone">Admin Phone</label>
+                        <label for="adminPhone">Admin Phone </label>
                         <input type="tel" id="adminPhone">
                     </div>
                     <div class="form-group">
@@ -296,7 +333,28 @@
                 </div>
 
                 <div style="margin-top: 25px; background: #F0F9F7; padding: 15px; border-radius: 8px;">
-                    <h5 style="color: #012E40; margin-bottom: 10px;">What We Install:</h5>
+                    <div class="info-header">
+                        <h5>What We Install:</h5>
+                        <button class="btn-info" onclick="window.toggleGA4Info()">What is GA4?</button>
+                        <button class="btn-info" onclick="window.togglePixelInfo()">What is Meta Pixel?</button>
+                    </div>
+                    
+                    <!-- GA4 Explanation (hidden initially) -->
+                    <div id="ga4Info" class="info-box">
+                        <h6>Google Analytics 4 (GA4):</h6>
+                        <p>
+                            GA4 tracks how people find and use your website. It shows us which ads bring the most visitors, what pages they look at, and what actions they take (like calling your office or filling out forms). This helps us improve your ads to get better results. <strong>No personal health information is tracked.</strong>
+                        </p>
+                    </div>
+
+                    <!-- Meta Pixel Explanation (hidden initially) -->
+                    <div id="pixelInfo" class="info-box warning">
+                        <h6>Meta Pixel (Facebook/Instagram):</h6>
+                        <p>
+                            Meta Pixel tracks when people visit your website after seeing your Facebook or Instagram ads. It helps us find more people similar to your best customers and shows ads to people who visited your website but didn't book an appointment yet. <strong>No personal health information is tracked.</strong>
+                        </p>
+                    </div>
+
                     <ul style="margin-left: 20px; color: #012E40; line-height: 1.6;">
                         <li>✓ Google Analytics 4 (GA4) tracking code</li>
                         <li>✓ Meta Pixel tracking code</li>
@@ -318,7 +376,7 @@
             <div class="step-header">
                 <div>
                     <h2>Creative Approval</h2>
-                    <div class="step-note">We are in the process of making your ads and you will be notified when they are ready</div>
+                    <div class="step-note">Your Launch Bundle: 1 actor video, 1 animated video, 2 image ads.</div>
                 </div>
                 <div class="step-number">5</div>
             </div>
@@ -356,7 +414,7 @@
 
         <!-- Footer -->
         <div class="portal-footer">
-            <p>Drive Lead Media — Professional digital marketing solutions.</p>
+            <p>Drive Lead Media — We never process PHI. All analytics used solely for advertising performance.</p>
             <div class="footer-links">
                 <span id="contactEmail">Nicolas@driveleadmedia.com</span>
                 <span>•</span>
