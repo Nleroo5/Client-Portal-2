@@ -16,14 +16,90 @@
             <h2 style="font-family: 'Young Serif', serif; margin-bottom: 20px;">Loading Portal...</h2>
             <div style="width: 50px; height: 50px; border: 3px solid #EEF4D9; border-radius: 50%; border-top-color: transparent; animation: spin 1s linear infinite; margin: 0 auto;"></div>
         </div>
-    </div>
-    
-    <style>
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
     </style>
+
+    <!-- Admin Panel -->
+    <div id="adminPanel" style="display: none;">
+        <div style="background: linear-gradient(135deg, #012E40 0%, #05908C 100%); color: #EEF4D9; padding: 20px; margin-bottom: 30px;">
+            <h1 style="font-family: 'Young Serif', serif; margin-bottom: 10px;">Admin Dashboard</h1>
+            <p>Manage Client Portals - Drive Lead Media</p>
+        </div>
+        
+        <div style="max-width: 1200px; margin: 0 auto; padding: 0 20px;">
+            <!-- Alert Messages -->
+            <div id="adminAlert" style="display: none; padding: 15px; border-radius: 8px; margin-bottom: 20px;"></div>
+            
+            <!-- Create New Client -->
+            <div style="background: white; border-radius: 12px; padding: 25px; margin-bottom: 25px; box-shadow: 0 4px 15px rgba(5, 144, 140, 0.1); border: 1px solid #85C7B3;">
+                <h2 style="color: #05908C; font-size: 1.5rem; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 2px solid #85C7B3;">Create New Client Portal</h2>
+                <form id="createClientForm">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+                        <div>
+                            <label style="display: block; color: #012E40; font-weight: 600; margin-bottom: 5px;">Client/Business Name *</label>
+                            <input type="text" id="clientName" required style="width: 100%; padding: 10px 15px; border: 2px solid #85C7B3; border-radius: 8px;">
+                        </div>
+                        <div>
+                            <label style="display: block; color: #012E40; font-weight: 600; margin-bottom: 5px;">Client Email</label>
+                            <input type="email" id="clientEmail" style="width: 100%; padding: 10px 15px; border: 2px solid #85C7B3; border-radius: 8px;">
+                        </div>
+                    </div>
+                    
+                    <div style="background: #F0F9F7; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                        <h3 style="color: #05908C; margin-bottom: 10px;">DocuSign Links (Optional)</h3>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                            <div>
+                                <label style="display: block; color: #012E40; font-weight: 600; margin-bottom: 5px;">Custom DPA Link</label>
+                                <input type="url" id="dpaLink" placeholder="Leave blank for default" style="width: 100%; padding: 8px 12px; border: 2px solid #85C7B3; border-radius: 6px;">
+                            </div>
+                            <div>
+                                <label style="display: block; color: #012E40; font-weight: 600; margin-bottom: 5px;">Custom Service Agreement</label>
+                                <input type="url" id="serviceAgreementLink" placeholder="Leave blank for default" style="width: 100%; padding: 8px 12px; border: 2px solid #85C7B3; border-radius: 6px;">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div style="background: #F0F9F7; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                        <h3 style="color: #05908C; margin-bottom: 10px;">Other Links (Optional)</h3>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                            <div>
+                                <label style="display: block; color: #012E40; font-weight: 600; margin-bottom: 5px;">Google Drive Upload Link</label>
+                                <input type="url" id="googleDriveLink" placeholder="Leave blank for default" style="width: 100%; padding: 8px 12px; border: 2px solid #85C7B3; border-radius: 6px;">
+                            </div>
+                            <div>
+                                <label style="display: block; color: #012E40; font-weight: 600; margin-bottom: 5px;">Invoice Payment Link</label>
+                                <input type="url" id="invoiceLink" placeholder="Stripe payment link" style="width: 100%; padding: 8px 12px; border: 2px solid #85C7B3; border-radius: 6px;">
+                            </div>
+                        </div>
+                        <div>
+                            <label style="display: block; color: #012E40; font-weight: 600; margin-bottom: 5px;">Creative Preview Link</label>
+                            <input type="url" id="creativeLink" placeholder="Add later when creatives are ready" style="width: 100%; padding: 8px 12px; border: 2px solid #85C7B3; border-radius: 6px;">
+                        </div>
+                    </div>
+                    
+                    <button type="submit" style="padding: 12px 24px; background: #F2A922; color: #012E40; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">Create Client Portal</button>
+                </form>
+            </div>
+            
+            <!-- Existing Clients -->
+            <div style="background: white; border-radius: 12px; padding: 25px; margin-bottom: 25px; box-shadow: 0 4px 15px rgba(5, 144, 140, 0.1); border: 1px solid #85C7B3;">
+                <h2 style="color: #05908C; font-size: 1.5rem; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 2px solid #85C7B3;">Existing Clients</h2>
+                <table style="width: 100%; border-collapse: collapse;">
+                    <thead>
+                        <tr style="background: #05908C; color: #EEF4D9;">
+                            <th style="padding: 12px; text-align: left;">Client Name</th>
+                            <th style="padding: 12px; text-align: left;">Status</th>
+                            <th style="padding: 12px; text-align: left;">Progress</th>
+                            <th style="padding: 12px; text-align: left;">Portal Link</th>
+                            <th style="padding: 12px; text-align: left;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="clientsTableBody">
+                        <!-- Clients will be loaded here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 
     <!-- Floating Progress Sidebar -->
     <div class="floating-progress-sidebar" id="floatingProgressSidebar">
@@ -72,7 +148,13 @@
         </div>
     </div>
 
-    <div class="portal-container">
+    <!-- Client Portal -->
+    <div class="portal-container" id="clientPortal">
+        <!-- Admin Access Button -->
+        <div style="position: fixed; bottom: 20px; right: 20px; z-index: 1000;">
+            <button id="adminAccessBtn" onclick="showAdminLogin()" style="background: #012E40; color: #EEF4D9; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 0.8rem;">Admin</button>
+        </div>
+
         <!-- Hero Section -->
         <div class="hero">
             <h1>Client Launch Portal</h1>
@@ -432,5 +514,149 @@
     
     <!-- Main Functions -->
     <script src="functions.js"></script>
+
+    <script>
+        // Portal 2 Admin Functions (exactly like Portal 1)
+        const PORTAL_BASE_URL = 'https://portal2.driveleadmedia.com';
+        let isAdminMode = false;
+
+        // Show admin login
+        function showAdminLogin() {
+            const password = prompt('Enter admin password:');
+            if (password === 'dlm2024admin') {
+                isAdminMode = true;
+                document.getElementById('clientPortal').style.display = 'none';
+                document.getElementById('adminPanel').style.display = 'block';
+                document.getElementById('floatingProgressSidebar').style.display = 'none';
+                loadAdminClients();
+            } else if (password !== null) {
+                alert('Incorrect password');
+            }
+        }
+
+        // Show admin alert
+        function showAdminAlert(message, type = 'success') {
+            const alertDiv = document.getElementById('adminAlert');
+            alertDiv.className = type === 'success' ? 
+                'background: rgba(34, 197, 94, 0.1); color: #22c55e; border: 1px solid #22c55e;' :
+                'background: rgba(255, 107, 107, 0.1); color: #ff6b6b; border: 1px solid #ff6b6b;';
+            alertDiv.textContent = message;
+            alertDiv.style.display = 'block';
+            setTimeout(() => alertDiv.style.display = 'none', 5000);
+        }
+
+        // Generate client ID
+        function generateClientId() {
+            return 'client2_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+        }
+
+        // Create new client
+        document.getElementById('createClientForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const clientData = {
+                clientId: generateClientId(),
+                clientName: document.getElementById('clientName').value,
+                clientEmail: document.getElementById('clientEmail').value || null,
+                active: true,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                lastUpdated: firebase.firestore.FieldValue.serverTimestamp(),
+                
+                step1Complete: false,
+                step2Complete: false,
+                step3Complete: false,
+                step4Complete: false,
+                step5Complete: false,
+                
+                dpaLink: document.getElementById('dpaLink').value || null,
+                serviceAgreementLink: document.getElementById('serviceAgreementLink').value || null,
+                googleDriveLink: document.getElementById('googleDriveLink').value || null,
+                invoiceLink: document.getElementById('invoiceLink').value || null,
+                creativeLink: document.getElementById('creativeLink').value || null
+            };
+            
+            try {
+                await db.collection('clients').doc(clientData.clientId).set(clientData);
+                showAdminAlert(`Client created! Portal link: ${PORTAL_BASE_URL}?c=${clientData.clientId}`);
+                document.getElementById('createClientForm').reset();
+                loadAdminClients();
+            } catch (error) {
+                console.error('Error creating client:', error);
+                showAdminAlert('Error creating client. Please try again.', 'error');
+            }
+        });
+
+        // Load clients for admin
+        async function loadAdminClients() {
+            try {
+                const snapshot = await db.collection('clients').orderBy('createdAt', 'desc').get();
+                const tbody = document.getElementById('clientsTableBody');
+                tbody.innerHTML = '';
+                
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    const portalLink = `${PORTAL_BASE_URL}?c=${data.clientId}`;
+                    
+                    const row = tbody.insertRow();
+                    row.innerHTML = `
+                        <td style="padding: 12px; border-bottom: 1px solid #e0e0e0;">${data.clientName}</td>
+                        <td style="padding: 12px; border-bottom: 1px solid #e0e0e0;">
+                            <span style="padding: 4px 12px; border-radius: 12px; font-size: 0.85rem; font-weight: 600; ${data.active ? 'background: rgba(34, 197, 94, 0.2); color: #22c55e;' : 'background: rgba(255, 107, 107, 0.2); color: #ff6b6b;'}">
+                                ${data.active ? 'Active' : 'Inactive'}
+                            </span>
+                        </td>
+                        <td style="padding: 12px; border-bottom: 1px solid #e0e0e0;">
+                            <div style="display: flex; gap: 4px;">
+                                <div style="width: 20px; height: 20px; border-radius: 50%; ${data.step1Complete ? 'background: #22c55e; color: white;' : 'background: #e0e0e0;'} display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: 600;">1</div>
+                                <div style="width: 20px; height: 20px; border-radius: 50%; ${data.step2Complete ? 'background: #22c55e; color: white;' : 'background: #e0e0e0;'} display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: 600;">2</div>
+                                <div style="width: 20px; height: 20px; border-radius: 50%; ${data.step3Complete ? 'background: #22c55e; color: white;' : 'background: #e0e0e0;'} display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: 600;">3</div>
+                                <div style="width: 20px; height: 20px; border-radius: 50%; ${data.step4Complete ? 'background: #22c55e; color: white;' : 'background: #e0e0e0;'} display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: 600;">4</div>
+                                <div style="width: 20px; height: 20px; border-radius: 50%; ${data.step5Complete ? 'background: #22c55e; color: white;' : 'background: #e0e0e0;'} display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: 600;">5</div>
+                            </div>
+                        </td>
+                        <td style="padding: 12px; border-bottom: 1px solid #e0e0e0;">
+                            <input type="text" value="${portalLink}" readonly style="width: 200px; padding: 4px; margin-right: 5px;">
+                            <button onclick="copyToClipboard('${portalLink}')" style="padding: 4px 8px; background: #85C7B3; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.8rem;">Copy</button>
+                        </td>
+                        <td style="padding: 12px; border-bottom: 1px solid #e0e0e0;">
+                            <button onclick="toggleClientStatus('${data.clientId}', ${!data.active})" style="padding: 8px 16px; ${data.active ? 'background: #ff6b6b;' : 'background: #22c55e;'} color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 0.85rem; margin-right: 5px;">
+                                ${data.active ? 'Deactivate' : 'Activate'}
+                            </button>
+                        </td>
+                    `;
+                });
+            } catch (error) {
+                console.error('Error loading clients:', error);
+                showAdminAlert('Error loading clients', 'error');
+            }
+        }
+
+        // Copy to clipboard
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                showAdminAlert('Portal link copied to clipboard!');
+            });
+        }
+
+        // Toggle client status
+        async function toggleClientStatus(clientId, activate) {
+            try {
+                await db.collection('clients').doc(clientId).update({
+                    active: activate,
+                    lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                showAdminAlert(`Client ${activate ? 'activated' : 'deactivated'} successfully`);
+                loadAdminClients();
+            } catch (error) {
+                console.error('Error updating status:', error);
+                showAdminAlert('Error updating client status', 'error');
+            }
+        }
+
+        // Make functions global for admin panel
+        window.showAdminLogin = showAdminLogin;
+        window.copyToClipboard = copyToClipboard;
+        window.toggleClientStatus = toggleClientStatus;
+    </script>
 </body>
 </html>
