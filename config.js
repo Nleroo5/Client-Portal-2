@@ -27,8 +27,5 @@ const DLM_CONFIG = {
     support: {
         opsEmail: "Nicolas@driveleadmedia.com",
         opsPhone: "(678) 650-6411"
-    },
-    admin: {
-        password: "portal2admin"
     }
 };
