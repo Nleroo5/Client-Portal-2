@@ -16,10 +16,10 @@ const db = firebase.firestore();
 const DLM_CONFIG = {
     docuSign: {
         dpa: "https://na4.docusign.net/Member/PowerFormSigning.aspx?PowerFormId=143e9c27-bc1d-4f0e-aab5-65a344a4f3e3&env=na4&acct=ab9821cd-da5d-4091-8f74-e8602b87929d&v=2",
-        serviceAgreement: "https://na4.docusign.net/Member/PowerFormSigning.aspx?PowerFormId=a78e28e4-f9a0-4e5a-8795-d31c45721130&env=na4&acct=ab9821cd-da5d-4091-8f74-e8602b87929d&v=2"
+        serviceAgreement: "https://na4.docusign.net/Member/PowerFormSigning.aspx?PowerFormId=PORTAL2-SERVICE-AGREEMENT&env=na4&acct=ab9821cd-da5d-4091-8f74-e8602b87929d&v=2"
     },
     stripeLinks: {
-        invoiceLink: "https://buy.stripe.com/your-portal2-payment-link"
+        invoiceLink: "https://buy.stripe.com/portal2-invoice-payment-link"
     },
     googleDrive: {
         defaultUploadLink: "https://drive.google.com/drive/folders/1jds7K6SdV6G_SwTyZZjxqjuftqIHiaPY?usp=sharing"
