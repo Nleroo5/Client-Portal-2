@@ -349,90 +349,7 @@
             return;
         }
         const subject = 'Creative Revision Request';
-        window.open(`mailto:${DLM_CONFIG.support.opsEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(notes)}`);
-    }
-
-    // Admin Panel Functions
-    function openAdminPanel() {
-        document.getElementById('adminPanel').style.display = 'block';
-    }
-
-    function closeAdminPanel() {
-        document.getElementById('adminPanel').style.display = 'none';
-        document.getElementById('adminPassword').value = '';
-        document.getElementById('adminContent').style.display = 'none';
-    }
-
-    function checkAdminPassword() {
-        const password = document.getElementById('adminPassword').value;
-        if (password === DLM_CONFIG.admin.password) {
-            document.getElementById('adminContent').style.display = 'block';
-        } else {
-            alert('Incorrect password');
-        }
-    }
-
-    function generateClientId() {
-        return 'client2_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-    }
-
-    async function createNewClient() {
-        const clientName = document.getElementById('newClientName').value;
-        const clientEmail = document.getElementById('newClientEmail').value;
-        
-        if (!clientName.trim()) {
-            alert('Please enter a client name');
-            return;
-        }
-        
-        const clientId = generateClientId();
-        const clientData = {
-            clientId: clientId,
-            clientName: clientName.trim(),
-            clientEmail: clientEmail || null,
-            active: true,
-            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-            lastUpdated: firebase.firestore.FieldValue.serverTimestamp(),
-            
-            // Progress tracking
-            step1Complete: false,
-            step2Complete: false,
-            step3Complete: false,
-            step4Complete: false,
-            step5Complete: false,
-            
-            // Links
-            dpaLink: null,
-            serviceAgreementLink: null,
-            googleDriveLink: null,
-            invoiceLink: null,
-            creativeLink: null
-        };
-        
-        try {
-            await db.collection('clients').doc(clientId).set(clientData);
-            const portalLink = `https://portal2.driveleadmedia.com?c=${clientId}`;
-            document.getElementById('adminResult').innerHTML = `
-                <div style="background: rgba(34, 197, 94, 0.1); color: #22c55e; padding: 15px; border-radius: 8px; border: 1px solid #22c55e;">
-                    <h4>✅ Client Created Successfully!</h4>
-                    <p><strong>Portal Link:</strong></p>
-                    <input type="text" value="${portalLink}" readonly style="width: 100%; padding: 8px; margin: 10px 0; border: 1px solid #22c55e; border-radius: 4px;">
-                    <button onclick="navigator.clipboard.writeText('${portalLink}')" style="background: #22c55e; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer;">Copy Link</button>
-                </div>
-            `;
-            document.getElementById('adminResult').style.display = 'block';
-            document.getElementById('newClientName').value = '';
-            document.getElementById('newClientEmail').value = '';
-        } catch (error) {
-            console.error('Error creating client:', error);
-            document.getElementById('adminResult').innerHTML = `
-                <div style="background: rgba(255, 107, 107, 0.1); color: #ff6b6b; padding: 15px; border-radius: 8px; border: 1px solid #ff6b6b;">
-                    <h4>❌ Error Creating Client</h4>
-                    <p>Please try again or check the console for details.</p>
-                </div>
-            `;
-            document.getElementById('adminResult').style.display = 'block';
-        }
+        window.open(`mailto:${DLM_CONFIG.support.opsEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`);
     }
 
     // Initialize on DOM ready - USES FIREBASE LOADING
@@ -504,8 +421,4 @@
     window.approveCreatives = approveCreatives;
     window.requestRevisions = requestRevisions;
     window.submitRevisions = submitRevisions;
-    window.openAdminPanel = openAdminPanel;
-    window.closeAdminPanel = closeAdminPanel;
-    window.checkAdminPassword = checkAdminPassword;
-    window.createNewClient = createNewClient;
 })();
