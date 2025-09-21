@@ -106,33 +106,58 @@
             </div>
             <div class="step-content">
                 <div style="margin-bottom: 20px;">
-                    <a href="#" class="btn" id="serviceAgreementBtn" target="_blank" rel="noopener">
-                        Sign Service Agreement
-                    </a>
                     <a href="#" class="btn" id="dpaBtn" target="_blank" rel="noopener">
                         Sign DPA (Data Processing Agreement)
                     </a>
                 </div>
+                <div class="radio-group">
+                    <div class="radio-item">
+                        <input type="radio" id="service6" name="serviceTerm" value="6" checked>
+                        <label for="service6">6-month service agreement</label>
+                    </div>
+                    <div class="radio-item">
+                        <input type="radio" id="service12" name="serviceTerm" value="12">
+                        <label for="service12">12-month service agreement</label>
+                    </div>
+                </div>
+                <a href="#" class="btn" id="serviceBtn" target="_blank" rel="noopener">
+                    Sign Service Agreement (6-month)
+                </a>
             </div>
             <div class="step-actions">
                 <button class="btn btn-complete" onclick="window.markStepComplete(1)">Mark Step 1 Complete</button>
             </div>
         </div>
 
-        <!-- Step 2: Pay First Invoice -->
+        <!-- Step 2: Set Up Payment -->
         <div class="step locked" id="step2">
             <div class="step-header">
                 <div>
-                    <h2>Pay First Invoice</h2>
+                    <h2>Set Up Payment</h2>
                     <div class="step-note">Secure payment processing via Stripe. All major payment methods accepted.</div>
                 </div>
                 <div class="step-number">2</div>
             </div>
             <div class="step-content">
-                <p style="color: #012E40; margin-bottom: 20px;">Click the link below to pay your first invoice securely through Stripe.</p>
+                <div class="payment-term-display">
+                    <h4 style="color: #012E40; margin: 0;">
+                        <span id="paymentTermText">6-Month</span> Payment Options
+                    </h4>
+                </div>
                 
-                <a href="#" class="btn" id="invoiceBtn" target="_blank" rel="noopener">
-                    Pay First Invoice
+                <div class="radio-group" style="margin-bottom: 20px;">
+                    <div class="radio-item">
+                        <input type="radio" id="paymentMonthly" name="paymentType" value="monthly" checked>
+                        <label for="paymentMonthly">Pay Monthly</label>
+                    </div>
+                    <div class="radio-item">
+                        <input type="radio" id="paymentUpfront" name="paymentType" value="upfront">
+                        <label for="paymentUpfront">Pay All Upfront <span class="discount-tag">5% Discount</span></label>
+                    </div>
+                </div>
+                
+                <a href="#" class="btn" id="stripeBtn" target="_blank" rel="noopener">
+                    Set Up Monthly Payment
                 </a>
             </div>
             <div class="step-actions">
@@ -219,8 +244,7 @@
                     </div>
                     
                     <p style="color: #012E40; margin-bottom: 15px;">Upload your logos, brand guidelines, fonts, and any existing creative assets so we can create ads that perfectly match your brand.</p>
-                    <a href="https://drive.google.com/drive/folders/1jds7K6SdV6G_SwTyZZjxqjuftqIHiaPY?usp=sharing" 
-                       class="btn btn-outline" id="uploadBtn" target="_blank" rel="noopener">
+                    <a href="#" class="btn btn-outline" id="uploadBtn" target="_blank" rel="noopener">
                         Upload Brand Assets
                     </a>
                 </div>
@@ -414,7 +438,7 @@
 
         <!-- Footer -->
         <div class="portal-footer">
-            <p>Drive Lead Media — Professional digital marketing solutions.</p>
+            <p>Drive Lead Media — We never process PHI. All analytics used solely for advertising performance.</p>
             <div class="footer-links">
                 <span id="contactEmail">Nicolas@driveleadmedia.com</span>
                 <span>•</span>
