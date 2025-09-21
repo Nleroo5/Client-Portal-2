@@ -249,98 +249,6 @@
         }
     }
 
-    // Update Creative Gallery
-    function updateCreativeGallery(link) {
-        const gallery = document.getElementById('galleryPlaceholder');
-        if (gallery) {
-            if (link) {
-                gallery.innerHTML = `
-                    <p style="color: #012E40; margin-bottom: 15px; font-weight: 600;">
-                        🎨 Your Creative Previews Are Ready!
-                    </p>
-                    <a href="${link}" class="btn" target="_blank" rel="noopener">
-                        View Creative Previews
-                    </a>
-                `;
-            } else {
-                gallery.innerHTML = `
-                    <p>Creative previews will be shared via secure link</p>
-                    <p style="font-size: 0.9rem; color: #85C7B3; margin-top: 10px;">
-                        Links will be provided once creatives are ready for review
-                    </p>
-                `;
-            }
-        }
-    }
-
-    // Email Admin Details
-    function emailAdminDetails() {
-        const adminName = document.getElementById('adminName').value;
-        const adminEmail = document.getElementById('adminEmail').value;
-        const adminPhone = document.getElementById('adminPhone').value;
-        const platform = document.getElementById('websitePlatform').value;
-        const platformOther = document.getElementById('websitePlatformOther').value;
-        
-        if (!adminEmail) {
-            alert('Please enter admin email address');
-            return;
-        }
-        
-        const platformText = platform === 'other' ? platformOther : platform;
-        const subject = 'Website Admin Contact Details - Client Portal';
-        const body = `Website Admin Contact Details:\n\n` +
-            `Name: ${adminName || 'Not provided'}\n` +
-            `Email: ${adminEmail}\n` +
-            `Phone: ${adminPhone || 'Not provided'}\n` +
-            `Platform: ${platformText || 'Not specified'}\n\n` +
-            `Please contact them to coordinate tracking installation.`;
-        
-        window.open(`mailto:${DLM_CONFIG.support.opsEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`);
-    }
-
-    // Email Access Details
-    function emailAccessDetails() {
-        const websiteUrl = document.getElementById('websiteUrl').value;
-        const loginUrl = document.getElementById('loginUrl').value;
-        const username = document.getElementById('tempUsername').value;
-        const password = document.getElementById('tempPassword').value;
-        const platform = document.getElementById('sitePlatform').value;
-        const platformOther = document.getElementById('sitePlatformOther').value;
-        
-        if (!websiteUrl || !username || !password) {
-            alert('Please fill in all required fields');
-            return;
-        }
-        
-        const platformText = platform === 'other' ? platformOther : platform;
-        const subject = 'Temporary Website Access Details - Client Portal';
-        const body = `Temporary Website Access Details:\n\n` +
-            `Website URL: ${websiteUrl}\n` +
-            `Login URL: ${loginUrl || 'Not provided'}\n` +
-            `Username: ${username}\n` +
-            `Password: ${password}\n` +
-            `Platform: ${platformText || 'Not specified'}\n\n` +
-            `Please install tracking and remove access when complete.`;
-        
-        window.open(`mailto:${DLM_CONFIG.support.opsEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`);
-    }
-
-    // Approve Creatives
-    function approveCreatives() {
-        if (confirm('Approve creatives for launch?')) {
-            markStepComplete(5);
-            alert('Approved! Your campaign will launch within 24-48 hours.');
-        }
-    }
-
-    // Request Revisions
-    function requestRevisions() {
-        const form = document.getElementById('revisionForm');
-        if (form) {
-            form.style.display = form.style.display === 'none' ? 'block' : 'none';
-        }
-    }
-
     // Submit Revisions
     function submitRevisions() {
         const notes = document.getElementById('revisionNotes').value;
@@ -349,7 +257,7 @@
             return;
         }
         const subject = 'Creative Revision Request';
-        window.open(`mailto:${DLM_CONFIG.support.opsEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`);
+        window.open(`mailto:${DLM_CONFIG.support.opsEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(notes)}`);
     }
 
     // Initialize on DOM ready - USES FIREBASE LOADING
@@ -375,12 +283,6 @@
         if (uploadBtn && !portalState.googleDriveLink) {
             uploadBtn.href = DLM_CONFIG.googleDrive.defaultUploadLink;
         }
-        
-        // Set contact info
-        const contactEmail = document.getElementById('contactEmail');
-        const contactPhone = document.getElementById('contactPhone');
-        if (contactEmail) contactEmail.textContent = DLM_CONFIG.support.opsEmail;
-        if (contactPhone) contactPhone.textContent = DLM_CONFIG.support.opsPhone;
         
         // Step 4 website access event listeners
         document.querySelectorAll('input[name="websiteAccess"]').forEach(radio => {
@@ -413,9 +315,21 @@
         
         console.log('✓ Portal 2 initialized successfully with Firebase');
     });
-
+        
+        // Step 4 website access event listeners
+        document.querySelectorAll('input[name="websiteAccess"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                const connectForm = document.getElementById('connectAdminForm');
+                const tempForm = document.getElementById('tempAccessForm');
+                if (connectForm) connectForm.style.display = this.value === 'connect' ? 'block' : 'none';
+                if (tempForm) tempForm.style.display = this.value === 'temporary' ? 'block' : 'none';
+            });
+        });
     // Expose functions globally
     window.markStepComplete = markStepComplete;
+    window.toggleBrandKitInfo = toggleBrandKitInfo;
+    window.toggleGA4Info = toggleGA4Info;
+    window.togglePixelInfo = togglePixelInfo;
     window.emailAdminDetails = emailAdminDetails;
     window.emailAccessDetails = emailAccessDetails;
     window.approveCreatives = approveCreatives;
