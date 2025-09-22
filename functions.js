@@ -1,5 +1,5 @@
 (function() {
-    // Portal State - CLIENT ONLY
+    // Portal State - Original Portal 2 Structure
     let portalState = {
         "1": false,
         "2": false,
@@ -8,24 +8,14 @@
         "5": false,
         "creativeLink": null,
         "googleDriveLink": null,
+        "invoiceLink": null,
         "docuSignLinks": {
-            "dpa": null,
-            "service6": null,
-            "service12": null
-        },
-        "stripeLinks": {
-            "service6": {
-                "monthly": null,
-                "upfront": null
-            },
-            "service12": {
-                "monthly": null,
-                "upfront": null
-            }
+            "serviceAgreement": null,
+            "dpa": null
         }
     };
 
-    // Load state from Firebase
+    // Load state from Firebase - Main loading function
     async function loadState() {
         const urlParams = new URLSearchParams(window.location.search);
         const clientId = urlParams.get('c');
@@ -80,33 +70,17 @@
                 if (dpaBtn) dpaBtn.href = data.dpaLink;
             }
             
-            if (data.service6Link) {
-                portalState.docuSignLinks.service6 = data.service6Link;
+            if (data.serviceAgreementLink) {
+                portalState.docuSignLinks.serviceAgreement = data.serviceAgreementLink;
+                const serviceBtn = document.getElementById('serviceAgreementBtn');
+                if (serviceBtn) serviceBtn.href = data.serviceAgreementLink;
             }
             
-            if (data.service12Link) {
-                portalState.docuSignLinks.service12 = data.service12Link;
-            }
-            
-            // Load Stripe links
-            if (data.stripe6Monthly) {
-                if (!portalState.stripeLinks.service6) portalState.stripeLinks.service6 = {};
-                portalState.stripeLinks.service6.monthly = data.stripe6Monthly;
-            }
-            
-            if (data.stripe6Upfront) {
-                if (!portalState.stripeLinks.service6) portalState.stripeLinks.service6 = {};
-                portalState.stripeLinks.service6.upfront = data.stripe6Upfront;
-            }
-            
-            if (data.stripe12Monthly) {
-                if (!portalState.stripeLinks.service12) portalState.stripeLinks.service12 = {};
-                portalState.stripeLinks.service12.monthly = data.stripe12Monthly;
-            }
-            
-            if (data.stripe12Upfront) {
-                if (!portalState.stripeLinks.service12) portalState.stripeLinks.service12 = {};
-                portalState.stripeLinks.service12.upfront = data.stripe12Upfront;
+            // Load invoice link
+            if (data.invoiceLink) {
+                portalState.invoiceLink = data.invoiceLink;
+                const invoiceBtn = document.getElementById('invoiceBtn');
+                if (invoiceBtn) invoiceBtn.href = data.invoiceLink;
             }
             
             // Load Google Drive link
@@ -275,53 +249,6 @@
         }
     }
 
-    // Update Service Button
-    function updateServiceButton() {
-        const service12 = document.getElementById('service12');
-        const serviceBtn = document.getElementById('serviceBtn');
-        if (service12 && serviceBtn) {
-            if (service12.checked) {
-                serviceBtn.textContent = 'Sign Service Agreement (12-month)';
-                serviceBtn.href = portalState.docuSignLinks?.service12 || DLM_CONFIG.docuSign.service12;
-            } else {
-                serviceBtn.textContent = 'Sign Service Agreement (6-month)';
-                serviceBtn.href = portalState.docuSignLinks?.service6 || DLM_CONFIG.docuSign.service6;
-            }
-            updatePaymentOptions();
-        }
-    }
-
-    // Update Payment Options
-    function updatePaymentOptions() {
-        const serviceTerm = document.getElementById('service12')?.checked ? 'service12' : 'service6';
-        const termText = serviceTerm === 'service12' ? '12-Month' : '6-Month';
-        const paymentTermText = document.getElementById('paymentTermText');
-        if (paymentTermText) paymentTermText.textContent = termText;
-        updatePaymentButton();
-    }
-
-    // Update Payment Button
-    function updatePaymentButton() {
-        const serviceTerm = document.getElementById('service12')?.checked ? 'service12' : 'service6';
-        const paymentType = document.getElementById('paymentUpfront')?.checked ? 'upfront' : 'monthly';
-        const stripeBtn = document.getElementById('stripeBtn');
-        
-        if (stripeBtn) {
-            const typeText = paymentType === 'upfront' ? 
-                'Set Up Upfront Payment (5% Discount)' : 'Set Up Monthly Payment';
-            stripeBtn.textContent = typeText;
-            
-            // Use custom link if available, otherwise use default
-            let paymentLink;
-            if (portalState.stripeLinks?.[serviceTerm]?.[paymentType]) {
-                paymentLink = portalState.stripeLinks[serviceTerm][paymentType];
-            } else {
-                paymentLink = DLM_CONFIG.stripeLinks[serviceTerm][paymentType];
-            }
-            stripeBtn.href = paymentLink;
-        }
-    }
-
     // Update Creative Gallery
     function updateCreativeGallery(link) {
         const gallery = document.getElementById('galleryPlaceholder');
@@ -457,35 +384,30 @@
         await loadState();
         updateStepStates();
         
-        // Set default DocuSign DPA link if no custom link
+        // Set default DocuSign links if no custom links
+        const serviceAgreementBtn = document.getElementById('serviceAgreementBtn');
         const dpaBtn = document.getElementById('dpaBtn');
+        const invoiceBtn = document.getElementById('invoiceBtn');
+        const uploadBtn = document.getElementById('uploadBtn');
+        
+        if (serviceAgreementBtn && !portalState.docuSignLinks?.serviceAgreement) {
+            serviceAgreementBtn.href = DLM_CONFIG.docuSign.serviceAgreement;
+        }
         if (dpaBtn && !portalState.docuSignLinks?.dpa) {
             dpaBtn.href = DLM_CONFIG.docuSign.dpa;
         }
-        
-        // Set default Google Drive link if no custom link
-        const uploadBtn = document.getElementById('uploadBtn');
+        if (invoiceBtn && !portalState.invoiceLink) {
+            invoiceBtn.href = DLM_CONFIG.stripeLinks.invoiceLink;
+        }
         if (uploadBtn && !portalState.googleDriveLink) {
             uploadBtn.href = DLM_CONFIG.googleDrive.defaultUploadLink;
         }
-        
-        // Initialize Service Agreement
-        updateServiceButton();
         
         // Set contact info
         const contactEmail = document.getElementById('contactEmail');
         const contactPhone = document.getElementById('contactPhone');
         if (contactEmail) contactEmail.textContent = DLM_CONFIG.support.opsEmail;
         if (contactPhone) contactPhone.textContent = DLM_CONFIG.support.opsPhone;
-        
-        // Event listeners
-        document.querySelectorAll('input[name="serviceTerm"]').forEach(radio => {
-            radio.addEventListener('change', updateServiceButton);
-        });
-        
-        document.querySelectorAll('input[name="paymentType"]').forEach(radio => {
-            radio.addEventListener('change', updatePaymentButton);
-        });
         
         // Step 4 website access event listeners
         document.querySelectorAll('input[name="websiteAccess"]').forEach(radio => {
@@ -516,7 +438,7 @@
             }
         });
         
-        console.log('✓ Portal 2 initialized successfully with Firebase (CLIENT ONLY)');
+        console.log('✓ Portal 2 initialized successfully with Firebase');
     });
 
     // Expose functions globally
