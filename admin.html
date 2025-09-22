@@ -560,14 +560,14 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
     
     <script>
-        // Firebase Configuration - Portal 2 Specific
+        // Firebase Configuration - Portal 2
         const firebaseConfig = {
-            apiKey: "AIzaSyBb5ZBhQtAh-qMeX-La39-Nuf2mWmCtidg",
-            authDomain: "client-portal-2-1d21e.firebaseapp.com",
-            projectId: "client-portal-2-1d21e",
-            storageBucket: "client-portal-2-1d21e.firebasestorage.app",
-            messagingSenderId: "626281176830",
-            appId: "1:626281176830:web:7f3026cd2f985bc6190faf"
+            apiKey: "AIzaSyC6nhisBnue09mvJuFzBb7m6zcMtqBRZEQ",
+            authDomain: "client-portal-2fa80.firebaseapp.com",
+            projectId: "client-portal-2fa80",
+            storageBucket: "client-portal-2fa80.firebasestorage.app",
+            messagingSenderId: "417272730660",
+            appId: "1:417272730660:web:9530a097347fbbf72f5771"
         };
         
         // Initialize Firebase
@@ -617,7 +617,7 @@
                 step4Complete: false,
                 step5Complete: false,
                 
-                // Custom links (only save if provided)
+                // Custom links (only save if provided) - Portal 2 Structure
                 dpaLink: document.getElementById('dpaLink').value || null,
                 serviceAgreementLink: document.getElementById('serviceAgreementLink').value || null,
                 googleDriveLink: document.getElementById('googleDriveLink').value || null,
@@ -730,7 +730,7 @@
                 document.getElementById('editStep4').checked = data.step4Complete || false;
                 document.getElementById('editStep5').checked = data.step5Complete || false;
                 
-                // DocuSign links
+                // DocuSign links - Portal 2 Structure
                 document.getElementById('editDpaLink').value = data.dpaLink || '';
                 document.getElementById('editServiceAgreementLink').value = data.serviceAgreementLink || '';
                 
@@ -795,7 +795,7 @@
                 step4Complete: document.getElementById('editStep4').checked,
                 step5Complete: document.getElementById('editStep5').checked,
                 
-                // DocuSign links (null if empty)
+                // DocuSign links (null if empty) - Portal 2 Structure
                 dpaLink: document.getElementById('editDpaLink').value || null,
                 serviceAgreementLink: document.getElementById('editServiceAgreementLink').value || null,
                 
