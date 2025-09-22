@@ -1,11 +1,11 @@
-// Firebase Configuration - Portal 2
+// Firebase Configuration - Portal 2 (CORRECTED)
 const firebaseConfig = {
-    apiKey: "AIzaSyC6nhisBnue09mvJuFzBb7m6zcMtqBRZEQ",
+    apiKey: "AIzaSyC6nh1sDnue09mvJuFzBb7m6zcMtoBRZEQ",  // Use EXACT config from Firebase Console
     authDomain: "client-portal-2fa80.firebaseapp.com",
     projectId: "client-portal-2fa80",
     storageBucket: "client-portal-2fa80.firebasestorage.app",
     messagingSenderId: "417272730660",
-    appId: "1:417272730660:web:9530a097347fbbf72f5771"
+    appId: "1:417272730660:web:0550a097347fbbf72f5771"  // Use EXACT appId from Firebase Console
 };
 
 // Initialize Firebase
